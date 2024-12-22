@@ -1,30 +1,29 @@
 % !TeX root = ../main.tex
 
 \ustcsetup{
-  keywords  = {学位论文, 摘要, 关键词},
-  keywords* = {dissertation, abstract, keywords},
+  keywords  = {水下三维感知, 去噪扩散模型, 3D 高斯泼溅},
+  keywords* = {underwater perceptual, denoising diffusion models, 3D Gaussian splatting},
 }
 
 \begin{abstract}
-  摘要分中文和英文两种，中文在前，英文在后，博士论文中文摘要一般 800～1500 个汉字，硕士论文中文摘要一般 500～1000 个汉字。
-  英文摘要的篇幅参照中文摘要。
+  水下图像增强技术对于推动海洋研究和勘探任务至关重要，但是由于水介质对不同波长的光存在明显的吸收差异，尤其是对红光的吸收较为显著，导致水下图像常呈现出偏绿色调。同时，水下环境中的悬浮颗粒会在光线传播中产生散射，使得图像出现模糊，严重影响水下成像质量，恶劣的水下图像对各种水下任务如海洋环境观测、海洋工程项目维修、海洋资源探测以及海底遗迹测绘等带来困扰。因此，为水下作业提供高质量全方位的可靠辅助感知增强成为当前海洋科学领域亟需解决的问题。
 
-  关键词另起一行并隔行排列于摘要下方，左顶格，中文关键词间空一字或用分号“，”隔开，英文关键词之间用逗号“,”或分号“;”隔开。
+  近年来，去噪扩散概率模型和3D高斯泼溅技术在图像生成和三维重建领域取得了显著的进展。因此本文拟提出一种基于去噪扩散模型与3D高斯泼溅的水下图像增强与高质量三维重建方法，旨在改善水下图像质量和提高三维场景重建精度。本文具体研究内容如下：
 
-  中文摘要是论文内容的总结概括，应简要说明论文的研究目的、基本研究内容、研究方法或过程、结果和结论，突出论文的创新之处。
-  摘要应具有独立性和自明性，即不用阅读全文，就能获得论文必要的信息。
-  摘要中不宜使用公式、图表，不引用文献。
+  （1）考虑水下图像存在的严重退化问题，提出一种基于去噪扩散模型的水下图像增强算法。本文通过研究去噪扩散模型的图像生成过程，结合水下图像衰减原理，探索利用去噪扩散模型进行水下图像增强的新颖方法，充分发挥扩散模型图像编辑能力恢复图像原始对比度和色彩，减轻由于水下恶劣环境对成像结果带来的语义干扰，为水下更多基于语义的下游任务提供高质量的图像输入基础。
 
-  中文关键词是为了文献标引工作从论文中选取出来用以表示全文主题内容信息的单词和术语，一般 3～8 个词，要求能够准确概括论文的核心内容。
+  （2）为了解决端到端的模型结构对于输入输入尺寸的限制，本文提出一种基于补丁引导的去噪扩散模型采样过程，针对不同分辨率图像输入可以按照统一大小的补丁对图像进行有重叠的分解，通过分解后的图像补丁级语义内容预测图像局部区域的噪声，将分解后的预测结果进行重新组合形成完整图像的噪声水平，进而采样出每个去噪阶段的完整图像语义信息与重建特征，实现任意分辨率的图像生成，同时缓解扩散模型训练数据的规模依赖。
+
+  （3）基于提出的水下图像增强方法，提出一种3D高斯泼溅技术在水下动态场景中的高质量重建方法。本文通过基于科尔莫格罗夫-阿诺德网络设计的高斯时空编码器与多头解码器进行水下动态场景重建。另外本文受水流和光照影响的水下动态环境变换存在一个高频分布表示的启发，利用学习到的动态重建场景信息进行低频视角数据的过滤，从而能够自适应水下环境的动态变换，消除水下运动干扰，更好的优化水下场景的高质量静态模式渲染。
 \end{abstract}
 
 \begin{abstract*}
-  This is a sample document of USTC thesis \LaTeX{} template for bachelor,
-  master and doctor. The template is created by zepinglee and seisman, which
-  orignate from the template created by ywg. The template meets the
-  equirements of USTC thesis writing standards.
+  Underwater image enhancement technology is crucial for advancing marine research and exploration tasks. However, due to the significant absorption differences of light at different wavelengths in water, particularly the strong absorption of red light, underwater images often exhibit a greenish tint. Additionally, suspended particles in the underwater environment cause scattering during light propagation, resulting in image blurring, which severely affects the quality of underwater imaging. This issue poses challenges for various underwater tasks, such as marine environment monitoring, marine engineering maintenance, marine resource exploration, and underwater archaeology. Therefore, providing high-quality, reliable, and comprehensive sensory enhancement for underwater operations is an urgent issue in the field of marine science.
 
-  This document will show the usage of basic commands provided by \LaTeX{} and
-  some features provided by the template. For more information, please refer to
-  the template document ustcthesis.pdf.
+  In recent years, denoising diffusion models and 3D Gaussian splashing techniques have made significant progress in image generation and 3D reconstruction. This paper proposes an underwater image enhancement and high-quality 3D reconstruction method based on denoising diffusion models and 3D Gaussian splashing. The goal is to improve underwater image quality and enhance the accuracy of 3D scene reconstruction. The specific contributions of this paper are as follows:
+	1.	Underwater Image Enhancement using Denoising Diffusion Models: Considering the severe degradation of underwater images, we propose an underwater image enhancement algorithm based on denoising diffusion models. By studying the image generation process of denoising diffusion models and combining the attenuation principles of underwater images, we explore a novel method for enhancing underwater images using diffusion models. This approach leverages the image editing capabilities of diffusion models to restore the original contrast and color of the images, alleviating semantic interference caused by the harsh underwater environment, and providing high-quality image input for downstream tasks based on semantic understanding.
+	2.	Patch-guided Denoising Diffusion Sampling: To address the limitations of end-to-end model structures regarding input size, we propose a patch-guided denoising diffusion model sampling process. This method divides images of varying resolutions into overlapping patches of uniform size and predicts the noise of local regions based on the semantic content of these patches. The predicted noise results from the patches are then recombined to form the noise level of the complete image, allowing for the generation of images at arbitrary resolutions and alleviating the dependency on large-scale training data for diffusion models.
+	3.	3D Gaussian Splashing for Dynamic Underwater Scene Reconstruction: Building upon the proposed underwater image enhancement method, we introduce a 3D Gaussian splashing technique for high-quality reconstruction of dynamic underwater scenes. We employ a Gaussian spatiotemporal encoder and multi-head decoder, designed based on the Kolmogorov-Arnold network, to reconstruct dynamic underwater scenes. Inspired by the high-frequency distribution representation caused by water flow and lighting changes, we filter low-frequency viewpoint data using learned dynamic reconstruction scene information, enabling adaptive changes to the underwater environment. This process eliminates motion interference and optimizes high-quality static scene rendering in underwater settings.
+
+  This paper thus provides a comprehensive solution for enhancing underwater image quality and improving the accuracy of 3D scene reconstruction in dynamic underwater environments.
 \end{abstract*}
