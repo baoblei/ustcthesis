@@ -193,6 +193,36 @@ $$
     \label{img:3DUW}
 \end{figure}
 
+另外，由于3DGS的重建质量在很大程度上依赖于SfM中获得的初始点云。
+而水下原始图像由于存在不同程度的模糊和色偏，导致SfM算法难以提取准确的特征点，只会产生稀疏的点云。
+为了形成一个更加密集的点云，在获取水下图像后，使用K-Nearest-Neighbor（KNN）算法在现有点的外围添加额外的点。
+算法\ref{eq:knn}描述了向原有稀疏点云添加补充点的过程。
+\begin{algorithm}[t]
+    \caption{\label{eq:knn}添加额外点云}
+    \KwIn{$\mathcal{G}$: 从 SfM 计算的点云}
+    \KwIn{$K$: 需要查找的邻近点个数}
+    \KwIn{$N_p$: 需要生成的额外点个数}
+    \KwIn{$t_d$: 新生成点与已有点之间的最小距离要求}
+    
+    $P_\text{add} \leftarrow \text{GenerateRandomPoints}(\mathcal{P}, N_p)$\tcp*{均匀采样生成 $N_p$ 个新点}
+    
+    \For{每个 $p \in P_\text{add}$}{
+        $\mathcal{P}_\text{knn} \leftarrow \text{FindNearestNeighbors}(\mathcal{P}, p, K)$\tcp*{找到 $p$ 在 $\mathcal{P}$ 中的 $K$ 个最近邻点}
+        $\mathcal{P}_\text{valid} \leftarrow \text{CheckDistance}(\mathcal{P}_\text{knn}, p, t_d)$\tcp*{筛选出与 $p$ 距离满足要求的邻居点}
+    
+        \If{$|\mathcal{P}_\text{valid}| > 0$}{
+            $p_c \leftarrow \text{LinearInterpolate}(\mathcal{P}_\text{valid}, p)$\tcp*{线性插值生成新点的颜色}
+            $\text{AddToPointCloud}(\mathcal{P}, p, p_c)$\tcp*{将新点添加到点云 $\mathcal{P}$ 中}
+        }
+    }
+\end{algorithm}
+
+首先，通过均匀采样的方法在点云范围内生成$N_p$个随机的新点$P_\text{add}$。对于每个新点$p$，算法利用KNN方法从初始点云中找到其K个最近邻点，构成候选邻域集合$\mathcal{P}\text{knn}$。
+随后，通过检查邻近点与新点之间的距离，通过$t_d$筛选出满足最小距离要求的有效邻居点集合$\mathcal{P}\text{valid}$。
+如果有效邻居点集合非空，算法通过对有效邻居点的颜色信息进行线性插值，估算新点的颜色属性，并将该点及其颜色属性添加到点云中，完成补充点的生成。
+这样的操作确保了新增点既满足稠密性需求，又与原始点云保持一致的几何和颜色特性。
+该算法通过逐点更新的方式动态扩展了点云密度，同时有效避免了新增点与原始点过度重叠或无效分布的问题，为水下重建提供了更加丰富且高质量的点云数据支撑。
+
 \subsection{实验设置}
 为验证本章提出水下三维重建方法的性能和鲁棒性，实验选用了两组真实水下数据集：自制的 3DUW 数据集和公开数据集 SeaThru-NeRF\cite{seathru}。两组数据集的划分如表 \ref{tab:recondata_split} 所示。
 \begin{table}[htbp]
