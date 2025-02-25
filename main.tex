@@ -2,7 +2,7 @@
 % !TeX program = xelatex
 % !TeX spellcheck = en_US
 
-\documentclass[degree=master, professional, chinese]{ustcthesis}
+\documentclass[degree=master, degree-type=professional, language=chinese, fontset=none]{ustcthesis}
 % degree      = doctor | master | bachelor
 % degree-type = academic | professional
 % language    = chinese | english
@@ -11,6 +11,10 @@
 % 加载宏包、全部的配置
 \input{ustcsetup.tex}
 
+% 手动设置字体
+\setCJKmainfont{Songti SC}
+% 如果上面不行，可以尝试：
+% \setCJKmainfont{Source Han Serif SC Regular}  % 思源宋体
 
 \begin{document}
 
@@ -37,11 +41,11 @@
 \bibliography{bib/BibTeX}  % 参考文献使用 BibTeX 编译
 % \printbibliography       % 参考文献使用 BibLaTeX 编译
 
-\appendix
-\input{chapters/complementary.tex}
+% \appendix
+% \input{chapters/complementary.tex}
 
 \backmatter
-\input{chapters/acknowledgements.tex}
-\input{chapters/publications.tex}
+% \input{chapters/acknowledgements.tex}
+\input{chapters/publications.tex} 
 
 \end{document}

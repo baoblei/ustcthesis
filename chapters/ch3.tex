@@ -342,28 +342,104 @@ UIEB 数据集包含 890 对配对图像以及 60 张无参考图像。
 方差调度参数 $\beta_i$ 采用线性变化，从 0.0001 逐步增加到 0.02。
 
 \subsection{定量评价} \label{sec:quantitative}
-水下图像增强评估选用三种常见的水下图像质量评价指标，用于不同方法的水下图像增强效果进行定量比较，具体包括：
+在图像恢复领域，对恢复结果进行定量评价至关重要。本章选取了两种在图像恢复领域被广泛使用的峰值信噪比和结构相似性指数来对不同算法生成结果进行定量比较。
+同时，由于水下图像的特殊性，本章还选取了专门的水下图像质量指标来对结果进行无参考质量评价。
 
-（1）峰值信噪比（PSNR）：用于评估参考图像和增强图像之间的像素重建质量，计算公式如下：
+（1）峰值信噪比（Peak Signal to Noise Ratio，PSNR）：PSNR是一种客观评价图像质量的重要指标，它通过比较图像信号的最大值与背景噪声的强弱来评估图像质量。
+该指标对光照误差敏感，能有效反映图像质量，峰值信噪比越高，图像质量通常越好。
+PSNR 首先统计了参考图像和增强图像之间的均方误差$\mathrm{MSE}$：
+\begin{equation}
+    \mathrm{MSE} = \frac{1}{N} \sum_{i=1}^{N} (I(i) - K(i))^2
+\end{equation}
+
+其中，$I$ 和 $K$ 分别表示参考图像和增强图像，$N$ 表示图像的像素总数。PSNR对均方误差的结果进了一定的标准化，计算方式为：
 \begin{equation}
     \mathrm{PSNR} =10 \times \log _{10} \frac{(\mathrm{MAXI})^2}{\mathrm{MSE}}
 \end{equation}
 
-其中，$\mathrm{MAXI}$ 表示像素值的动态范围，$\mathrm{MSE}$ 表示参考图像和增强图像之间的均方误差。
+其中，$\mathrm{MAXI}$ 为图像的最大像素值，表示像素值的动态范围，对于8位图像，$\mathrm{MAXI}=255$。
 
-（2）结构相似性指数（SSIM） \cite{ssim}：从亮度、对比度和结构三个方面评价图像之间的相似性，计算公式如下：
+（2）结构相似性指数（SSIM） \cite{ssim}：SSIM通过比较图像之间的多个视觉要素来计算损失，包括亮度$l$、对比度$c$和结构$s$三个方面评价图像质量。
+其中，亮度测量需要计算参考图像的像素平均值$\mu_x$和增强图像的像素平均值$\mu_y$：
+\begin{equation}
+    \mu_x = \frac{1}{N} \sum_{i=1}^{N} I(i) , \quad \mu_y = \frac{1}{N} \sum_{i=1}^{N} K(i)
+\end{equation}
+
+其中，$I$ 表示参考图像，$K$ 表示增强图像，$N$ 表示图像的像素总数。
+亮度评价指标的计算公式为：
+\begin{equation}
+    l(x, y) = \frac{2\mu_x\mu_y + c_1}{\mu_x^2 + \mu_y^2 + c_1}
+\end{equation}
+
+对比度评价指标的计算公式为：
+\begin{equation}
+    c(x, y) = \frac{2\sigma_x\sigma_y + c_2}{\sigma_x^2 + \sigma_y^2 + c_2}
+\end{equation}
+
+结构评价指标的计算公式为：
+\begin{equation}
+    s(x, y) = \frac{{\sigma_{xy} + c_3}}{{\sigma_x\sigma_y + c_3}}
+\end{equation}
+
+其中，常数$c_1=(255\times0.01)^2$、$c_2=(255\times0.03)^2$、$c_3=(255\times0.015)^2$ 是稳定因子，
+$\sigma_x$ 和 $\sigma_y$ 分别表示参考图像和增强图像的标准差，$\sigma_{xy}$ 表示协方差：
+\begin{equation}
+    \begin{split}
+    \sigma_{xy} &= \frac{1}{N} \sum_{i=1}^{N} (I(i) - \mu_x)(K(i) - \mu_y), \\
+    \sigma_x^2 &= \frac{1}{N} \sum_{i=1}^{N} (I(i) - \mu_x)^2, \\
+    \sigma_y^2 &= \frac{1}{N} \sum_{i=1}^{N} (K(i) - \mu_y)^2
+    \end{split}
+\end{equation}
+
+SSIM 为上面三个指标的加权平均值：
+\begin{equation}
+    \mathrm{SSIM} = [{{l(x,y)}^\alpha} \cdot {{c(x,y)}^\beta} \cdot {{s(x,y)}^\gamma} ]
+\end{equation}
+
+令$c_3=\frac{c_2}{2}$，$\alpha=\beta=\gamma=1$，则SSIM可以简化为：
 \begin{equation}
     \mathrm{SSIM} = \frac{{(2\mu_x\mu_y + c_1)(2\sigma_{xy} + c_2)}}{{(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}}
 \end{equation}
 
-其中，$\mu_x$、$\mu_y$ 表示参考图像和重建图像的均值，$\sigma_x^2、\sigma_y^2$ 表示方差，$\sigma_{xy}$ 表示协方差，$c_1=(255\times0.01)^2$、$c_2=(255\times0.03)^2$ 是稳定因子。
+其中，$\mathrm{SSIM}$ 的取值范围为 $[-1, 1]$，值越大，表示图像质量与参考图像越相似，图像质量越好。
 
-（3）水下图像质量指标（UIQM） \cite{uiqm}：一种无参考质量指标，结合了水下图像的色彩、清晰度和对比度特性，计算公式如下：
+（3）水下图像质量指标（UIQM） \cite{uiqm}：UIQM是一种无参考水下图像质量评价指标，
+对于水下图像来说，不同波长的衰减系数不同，导致图像存在色偏，正向散射效应往往会造成成像模糊，而后向散射效应限制了图像的对比度。
+因此，UIQM综合考量了水下图像的色彩测量指标$\mathrm{UICM}$、清晰度测量指标$\mathrm{UISM}$和对比度测量指标$\mathrm{UIConM}$最为最终的评价指标。
+
+$\mathrm{UICM}$通过分析图像的颜色通道差异来量化图像的色彩特性：
+\begin{equation}
+    \mathrm{UICM}=-0.0268 \times \sqrt{\mu_{RG}^2 + \mu_{YB}^2} + 0.1586 \times \sqrt{\sigma_{RG}^2 + \sigma_{YB}^2}
+\end{equation}
+
+其中，$\mu_{RG}$ 和 $\mu_{YB}$ 分别表示图像的红绿两个通道的差异均值和黄（红绿通道像素均值）蓝两个通道的差异均值，$\sigma_{RG}$ 和 $\sigma_{YB}$ 分别表示对应的方差。
+
+$\mathrm{UISM}$ 通过分析图像的局部对比度来量化图像的清晰度，首先需要计算图像的局部对比度$\mathrm{EME}$：
+\begin{equation}
+    \mathrm{EME} = \frac{2}{k_1 k_2} \sum_{l=1}^{k_1} \sum_{k=1}^{k_2} \log \left( \frac{I_{\text{max},k,l}}{I_{\text{min},k,l}} \right)
+\end{equation}
+
+其中，$k_1$ 和 $k_2$ 分别表示图像的行和列的像素数，$I_{\text{max},k,l}$ 和 $I_{\text{min},k,l}$ 分别表示图像在第$k$行和第$l$列的像素最大值和最小值。
+$\mathrm{UISM}$ 为$\mathrm{EME}$的在不同通道上的加权和：
+\begin{equation}
+    \mathrm{UISM} = 0.299 \times \mathrm{EME}_{R} + 0.587 \times \mathrm{EME}_{G} + 0.114 \times \mathrm{EME}_{B}
+\end{equation}
+
+$\mathrm{UIConM}$ 通过衡量图像中最亮和最暗部分的区分度来量化图像的对比度，其首先在图像对应灰度图像中计算平均灰度值$\mu$：
+\begin{equation}
+   \mu = \frac{1}{N} \sum_{i=1}^{N} x_i
+\end{equation}
+
+其中，$N$ 表示图像的像素总数，$x_i$ 表示图像的第$i$个像素的灰度值。然后计算灰度图的标准差 \(\sigma\)即为UIConM值：
+\begin{equation}
+    \mathrm{UIConM}=\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} 
+\end{equation}
+
+UIQM 是以上三种测量指标的加权和：
 \begin{equation}
     \mathrm{UIQM}=c_1 \times \mathrm{UICM}+c_2 \times \mathrm{UISM}+c_3 \times \mathrm{UIConM}
 \end{equation}
-
-其中，$\mathrm{UICM}$、$\mathrm{UISM}$ 和 $\mathrm{UIConM}$ 分别用来衡量水下图像的色彩、锐度和对比度，$c1=0.0282$、$c2=0.2953$、$c3=3.5753$为权重系数。
+其中常数$c_1=0.0282$、$c_2=0.2953$、$c_3=3.5753$为权重系数。
 
 表\ref{tab:psnr-ssim}  和表\ref{tab:uiqm} 分别展示了本章提出的水下图像增强的方法与其他方法在 PSNR、SSIM 和 UIQM 等指标上的比较结果。
 其中 Ucolor\cite{ucolor}模型需要额外的传输图作为输入，
@@ -684,7 +760,7 @@ UIEB 数据集包含 890 对配对图像以及 60 张无参考图像。
 结果表明，在编码器-解码器的残差模块中去除时间步嵌入（w/o timestep）会明显降低模型对采样时间步的敏感性，从而无法更准确地识别扩散过程中的动态变化。
 在所有层中引入残差注意力模块（w/ all layer attention）可以较大的提升模型的特征提取能力，但运行时间显著增加至 1022.20 ms。
 相比之下，仅在一层中加入残差注意力模块（w/ one layer attention）时，尽管 PSNR 和 SSIM 稍有下降（分别为 29.90 和 0.91），但运行时间显著降低至 889.32 ms。
-为了平衡性能和效率，可以仅在分辨率为 $15 \times 15$ 的特定层中引入残差注意力模块，既能保持较高的效果，又能降低一定的推理时间。
+为了平衡性能和效率，可以仅在特征分辨率为 $16 \times 16$ 的特定层中引入残差注意力模块（如图\ref{img:network}所示），既能保持较高的效果，又能降低一定的推理时间。
 \begin{table}[ht]
     \vspace{-0.4mm}
     \centering
@@ -696,9 +772,9 @@ UIEB 数据集包含 890 对配对图像以及 60 张无参考图像。
             \textbf{}  & \textbf{PSNR}  & \textbf{SSIM} & \textbf{UIQM} & \textbf{Runtime (ms)} \\
             \hline
             \specialrule{0em}{1pt}{1pt}
-            w/o timestep & $21.75$  & $0.84$  & $3.00$ & $739.20$\\
+            w/o timestep & $21.75$  & $0.84$  & $3.00$ & $\textcolor{red}{\textbf{739.20}}$\\
             \specialrule{0em}{1pt}{1pt}
-            w/ all layer attention & $31.02$  & $0.92$  & $3.05$ & $1022.20$\\
+            w/ all layer attention & $\textcolor{red}{\textbf{31.02}}$  & $\textcolor{red}{\textbf{0.92}}$  & $\textcolor{red}{\textbf{3.05}}$ & $1022.20$\\
             \specialrule{0em}{1pt}{1pt}
             w/ one layer attention & $29.90$  & $0.91$  & $3.04$ & $889.32$\\
             \bottomrule
@@ -754,3 +830,10 @@ UIEB 数据集包含 890 对配对图像以及 60 张无参考图像。
     \includegraphics[width=0.98\linewidth]{figures/ch3/compare/discussion/param.pdf}
     \caption{\label{img:param}不同步长$stride$和采样步数$S$参数组合下的的增强效果。}
 \end{figure}
+
+\section{本章小结}
+本章提出了一种基于扩散模型的水下图像增强方法，通过引入时间步嵌入和残差注意力模块，显著提升了模型的特征提取能力。
+同时，本章通过实验验证了步长与采样步数的均衡关系，为实际应用中的参数选择提供了参考。
+实验结果表明，本章提出的方法在主观视觉效果和客观指标上均表现出色，能够有效提升水下图像的视觉效果和语义信息。
+
+
