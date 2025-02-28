@@ -177,11 +177,11 @@ $\mathbf{x}^{(i)} \gets \text{Crop}(\bm{P}_i \circ \bm{X})$\;
   
     $n \leftarrow P.\text{length}$\;
     \Repeat{收敛}{
-      随机采样一个补丁ID $i \in \{1, 2, 3, \ldots, n\}$，来自不同的补丁位置\;
+      随机从不同的补丁位置采样一个补丁ID $i \in \{1, 2, 3, \ldots, n\}$\;
       $\mathbf{x}_0^{(i)} \leftarrow \text{Crop}(\bm{P}_i \circ \bm{X}_0)$\;
       $\tilde{\mathbf{x}}^{(i)} \leftarrow \text{Crop}(\bm{P}_i \circ \bm{\tilde{X}})$\;
       $t \sim \text{Uniform}\{1, \ldots, T\}$ 且 $\bm{\epsilon}_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$\;
-      对以下目标执行一次梯度下降步骤：\\
+      按以下目标执行一次梯度下降优化：\\
       \quad $\nabla_{\theta} \Vert \bm{\epsilon}_t - \bm{\epsilon}_{\theta}(\sqrt{\bar{\alpha}_t}\mathbf{x}_0^{(i)} + \sqrt{1 - \bar{\alpha}_t}\bm{\epsilon}_t, \tilde{\mathbf{x}}^{(i)}, t) \Vert^2$\;
     }
     \caption{训练}
@@ -229,7 +229,7 @@ $\mathbf{x}^{(i)} \gets \text{Crop}(\bm{P}_i \circ \bm{X})$\;
         $\bm{\hat{\epsilon}}_t \leftarrow \bm{\hat{\epsilon}}_t + \mathbf{P}_i \cdot \bm{\epsilon}_{\theta}(\mathbf{x}_t^{(i)}, \tilde{\mathbf{x}}^{(i)}, t)$\;
         $\mathbf{M} \leftarrow \mathbf{M} + \mathbf{P}_i$\;
       }
-      $\bm{\hat{\epsilon}}_t \leftarrow \bm{\hat{\epsilon}}_t \oslash \mathbf{M}$ \quad \quad $\oslash$: 元素级除法\;
+      $\bm{\hat{\epsilon}}_t \leftarrow \bm{\hat{\epsilon}}_t \oslash \mathbf{M}$  \tcp* {$\oslash$: 元素级除法}
       $X_{t} \leftarrow \sqrt{\bar{\alpha}_{t_{\text{next}}}} \left(\frac{X_t - \sqrt{1 - \bar{\alpha}_t} \cdot \bm{\hat{\epsilon}}_t}{\sqrt{\bar{\alpha}_t}}\right) + \sqrt{1 - \bar{\alpha}_{t_{\text{next}}}} \cdot \bm{\hat{\epsilon}}_t$\;
     }
     \Return $\bm{X}_t$\;
