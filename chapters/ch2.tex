@@ -1,16 +1,32 @@
 % !TeX root = ../main.tex
 
 \chapter{相关技术与理论}
-本章重点介绍本文研究内容所涉及的去噪扩散概率模型、3D高斯泼溅技术以及Kolmogorov-Arnold网络的基本理论知识。
-其中，去噪扩散模型作为本文水下图像增强的核心技术，用于修复和优化退化的水下图像质量；
-而利用经过增强的水下图像，结合3D高斯泼溅技术，可实现水下三维场景的高质量渲染，极大提升场景的视觉真实性。
-此外，通过引入Kolmogorov-Arnold网络的非线性映射能力和高效函数逼近特性，可以实现动态场景重建的时空关系预测。
+本章系统阐述支撑本研究的三项核心技术与理论：去噪扩散概率模型、3D高斯泼溅（3D Gaussian Splatting, 3DGS）技术及相关深度学习基础。
+三者通过协同作用构建了完整的水下感知增强体系：
+首先，基于去噪扩散模型的水下图像增强算法（详见第三章）通过渐进式噪声去除机制恢复退化图像的语义信息；
+其次，增强后的多视角图像经由3D高斯泼溅技术（详见第四章）构建动态场景的显式三维表征；
+最终，通过可穿戴设备实现水下三维场景的实时渲染与交互，辅助潜水员进行水下作业。
+另外，U-Net网络与Kolmogorov-Arnold（KAN）网络分别作为图像增强与三维重建的核心组件，
+U-Net用于扩散模型的噪声估计，KAN网络用于3D高斯的时空形变预测。
+
+% 本章重点介绍本文研究内容所涉及的去噪扩散概率模型、3D高斯泼溅技术以及相关深度学习的基本理论知识。
+% 其中，去噪扩散模型作为本文水下图像增强的核心技术，用于修复和优化退化的水下图像质量；
+% 利用经过增强的水下某个场景的多视角图像，结合3D高斯泼溅技术，可实现水下三维场景的高质量重建，
+% 三维渲染图像可以通过可穿戴设备展示给潜水员，从而辅助潜水员进行水下作业。
+% 另外，在去噪扩散模型中将利用U-Net网络作为噪声估计网络来实现逐步采样，
+% 在3D高斯泼溅技术中通过引入Kolmogorov-Arnold网络的非线性映射能力和高效函数逼近特性，可以实现动态场景重建的时空关系预测。
 
 \section{基于扩散模型的图像生成}
 
 \subsection{去噪扩散概率模型}
 去噪扩散概率模型\cite{pre_ddpm}\cite{ddpm} 是一种基于参数化马尔可夫链的生成模型，其核心思想是通过逐步加噪和去噪过程，将复杂的高维数据分布分解为一系列简单的高斯分布，从而进行高效建模。
-模型包含两个核心部分：正向加噪过程 $q$ 和后向去噪过程 $p$。
+如图\ref{img:ddpm}所示，模型包含两个核心部分：正向加噪过程 $q$ 和后向去噪过程 $p$。
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/ch2/ddpm.pdf}
+    \caption{去噪扩散概率模型示意图}
+    \label{img:ddpm}
+\end{figure}
 
 正向过程 $q$ 是一个逐步添加高斯噪声的过程，其从干净的图像 $\mathbf{x}_0$ 开始，在每个时间步 $t$ 根据给定的噪声方差表 $\beta_1, \dots, \beta_T$ 生成一系列噪声图像 $\mathbf{x}_1, \dots, \mathbf{x}_T$，具体定义如下：
 \begin{equation}
@@ -18,30 +34,30 @@
     q\left(\mathbf{x}_t \mid \mathbf{x}_{t-1}\right)=\mathcal{N}\left(\mathbf{x}_t ; \sqrt{1-\beta_t} \mathbf{x}_{t-1}, \beta_t \mathbf{I}\right)
 \end{equation}
 
-其中 $\mathbf{I}$ 为单位矩阵，结果符合高斯分布 $\mathcal{N}$。整个扩散过程可以视为条件高斯分布的链式乘积：
+其中 $\mathbf{I}$ 为单位矩阵，每一步的结果符合正态分布 $\mathcal{N}$。整个扩散过程可以视为条件正态分布的链式乘积：
 \begin{equation}
     q\left(\mathbf{x}_{1: T} \mid \mathbf{x}_0\right)=\prod_{t=1}^T q\left(\mathbf{x}_t \mid \mathbf{x}_{t-1}\right)
 \end{equation}
 
 图像 $\mathbf{x}_0 \sim q\left(\mathbf{x}_0\right)$ 在 $T$ 个扩散时间步中逐渐被破坏，每个噪声级别建模为一个扩散过程。
-正向过程的目标是生成一系列与真实世界噪声图像相似的噪声。这个过程使得模型可以学习不同级别的噪声统计特性及其对图像的影响。
-定义 $\alpha_t=1-\beta_t$ 和  $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$，则可以简化推导为任意时间步 $t$ 的图像 $\mathbf{x}_t$ 相对于初始图像 $\mathbf{x}_0$ 的条件分布：：
+正向过程的目标是生成与真实世界噪声图像相似的高斯噪声。这个过程使得模型可以学习不同级别的噪声统计特性及其对图像的影响。
+定义 $\alpha_t=1-\beta_t$ 和  $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$，则可以将上述过程推导为任意时间步 $t$ 的图像 $\mathbf{x}_t$ 相对于初始图像 $\mathbf{x}_0$ 的条件分布：
 \begin{equation}
     \label{eq:q}
 q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sqrt{\bar{\alpha}_t} \mathbf{x}_0,\left(1-\bar{\alpha}_t\right) \mathbf{I}\right)
 \end{equation}
 
-上述分布的闭式形式为：
+可以通过重参数化转为封闭形式：
 \begin{equation}
     \label{eq:x0_xt}
     \mathbf{x}_t=\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \epsilon_t
 \end{equation}
 
 其中 $\boldsymbol{\epsilon}_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 是标准高斯噪声。
-通过这种方式，可以直接在某个时间步采样生成 $\mathbf{x}_t$，避免逐步采样带来的高昂计算成本。
+通过这种方式，可以直接在某个时间步采样生成 $\mathbf{x}_t$，避免逐步迭代计算中间结果时带来的高昂计算成本。
 
 
-反向过程是一个从标准正态分布 $p\left(\mathbf{x}_T\right) \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 开始的马尔可夫链，逐步去噪直到生成目标图像 $\mathbf{x}_0$。其联合分布形式化定义为：
+基于正向过程的目标形式，反向过程定义为一个从标准正态分布 $p\left(\mathbf{x}_T\right) \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 开始的马尔可夫链，通过逐步去噪生成目标图像 $\mathbf{x}_0$，其联合分布可以定义为：
 \begin{equation}
 \label{eq:p_total}
     p_\theta\left(\mathbf{x}_{0: T}\right) =p\left(\mathbf{x}_T\right) \prod_{t=1}^T p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right)
@@ -53,15 +69,14 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
     p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right) =\mathcal{N}\left(\mathbf{x}_{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right), \Sigma_\theta\left(\mathbf{x}_t, t\right)\right) 
 \end{equation}
 
-其中 $\mu_\theta\left(\mathbf{x}t, t\right)$ 和 $\Sigma_\theta\left(\mathbf{x}_t, t\right)$ 表示在时间 $t$ 由噪声估计网络预测的均值和方差，$\theta$ 表示噪声估计网络的参数。
-给定输入 $\mathbf{x}_0$，在采样时间步$t-1$下的噪声状态 $\mathbf{x}_{t-1}$ 和采样时间步$t$的状态 $\mathbf{x}_t$ 的真实条件分布为：
+其中 $\mu_\theta\left(\mathbf{x}_t, t\right)$ 和 $\Sigma_\theta\left(\mathbf{x}_t, t\right)$ 表示采样步为$t$ 时，由噪声估计网络预测的图像均值和方差，$\theta$ 表示噪声估计网络的参数。
+结合前向过程以及贝叶斯公式可知给定输入 $\mathbf{x}_0$，在采样时间步$t-1$下的噪声状态 $\mathbf{x}_{t-1}$ 和采样时间步$t$的状态 $\mathbf{x}_t$ 的真实条件分布为：
 \begin{equation}
     \label{eq:real_q}
     q\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_{t-1} ; \tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right), \tilde{\beta}_t \mathbf{I}\right) 
 \end{equation}
 
-
-值得注意的是，公式中的均值 $\tilde{\boldsymbol{\mu}}_t$ 表示在时间 $t$ 的输入 $\mathbf{x}_t$ 和初始状态 $\mathbf{x}_0$ 的条件下，$t-1$ 时刻图像的期望值；而 $\tilde{\beta}_t$ 则控制了该分布的扩散程度。
+其中公式中的均值 $\tilde{\boldsymbol{\mu}}_t(\mathbf{x}_t, \mathbf{x}_0)$ 表示在时间 $t$ 的输入 $\mathbf{x}_t$ 和初始状态 $\mathbf{x}_0$ 的条件下，$t-1$ 时刻图像的均值；而 $\tilde{\beta}_t$ 则控制了该分布的扩散程度。
 分布参数可以表示为：
 \begin{equation}
     \quad\tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right)=\frac{\sqrt{\bar{\alpha}_{t-1}} \beta_t}{1-\bar{\alpha}_t} \mathbf{x}_0+\frac{\sqrt{\alpha_t}\left(1-\bar{\alpha}_{t-1}\right)}{1-\bar{\alpha}_t} \mathbf{x}_t
@@ -76,12 +91,13 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 \end{split}
 \end{equation}
 
-噪声估计网络被用于预测时间步 $t$ 的噪声分布 $\boldsymbol{\epsilon}_\theta$，在 \eqref{eq:p} 中，噪声分布均值 $\mu_\theta\left(\mathbf{x}_t, t\right)$ 为：
+在反向去噪过程中，噪声估计网络得到的采样时间步 $t$ 的结果$\boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)$ 来估计真实噪声 $\boldsymbol{\epsilon}_t$，
+因此在公式 \eqref{eq:p} 中，在时间步 $t$ 下样本分布均值 $\mu_\theta\left(\mathbf{x}_t, t\right)$ 为：
 \begin{equation}
     \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right)=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right)
 \end{equation}
 
-因此可以通过网络训练在采样时间步 $t$ 的结果$\boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)$ 预测噪声向量 $\boldsymbol{\epsilon}_t$，网络学习的主要优化目标是使估计的噪声分布接近真实噪声分布，期望损失 $\mathbb{E}$ 表示如下：
+网络训练的主要优化目标是使估计的噪声分布接近真实噪声分布，期望损失 $\mathbb{E}$ 表示如下：
 \begin{equation}
 \begin{split}
     \mathbb{E}_{\mathbf{x}_0, t, \epsilon_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})}\left[\left\|\boldsymbol{\epsilon}_t -\boldsymbol{\epsilon}_\theta\left(\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \epsilon_t, t\right)\right\|^2\right]
@@ -94,29 +110,29 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 \end{equation}
 
 其中 $\boldsymbol{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$是一个随机噪声项，模型旨在消除噪声并重构干净的图像。
-这一公式表明，每一步都基于当前状态 $\mathbf{x}_t$ 和估计的噪声分布生成下一个采样时间步结果 $\mathbf{x}_{t-1}$，逐步减少噪声水平，最终实现接近训练数据的图像生成。
+这一公式表明，每一步都基于当前状态 $\mathbf{x}_t$ 和估计的噪声分布生成下一个采样时间步结果 $\mathbf{x}_{t-1}$，逐步减少噪声水平，最后生成接近训练数据分布的图像。
 
 \subsection{去噪扩散隐式模型}
-去噪扩散概率模型 (DDPM) 的推理过程需要进行 $T$ 次采样时间步数的迭代去噪，这导致采样时间成本较高。
+通过上面的介绍可知去噪扩散概率模型的推理过程需要进行 $T$ 次采样时间步数的迭代去噪，这导致在图像生成时的推理时间成本较高。
 例如，当总采样步数 $T=1000$ 时，需要调用噪声估计网络 1000 次，极大限制了该模型在实际应用中的效率。
-去噪扩散隐式模型\cite{improved_ddpm}\cite{ddim} 提出了一种改进的反向采样方法，通过重新设计正向过程的形式，在无需重新训练模型的情况下显著加速了推理过程。
+去噪扩散隐式模型\cite{improved_ddpm}\cite{ddim} 提出了一种改进的反向采样方法，通过重新设计正向过程的形式，在无需重新训练模型的情况下显著加速推理过程。
 
-去噪扩散隐式模型引入了一种广义的非马尔可夫正向过程，该过程通过实数向量 $\sigma$ （即每个时间步的标准差 $\sigma_t$）进行索引，定义如下：
+去噪扩散隐式模型引入了一种广义的非马尔可夫正向过程，该过程通过实数向量 $\sigma$ （即每个时间步的标准差 $\sigma_t$）进行索引，定义了如下的前向过程联合分布：
 \begin{equation}
     q_\sigma\left(\mathbf{x}_{1: T} \mid \mathbf{x}_0\right)=q_\sigma\left(\mathbf{x}_T \mid \mathbf{x}_0\right) \prod_{t=2}^T q_\sigma\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)
 \end{equation}
 
-其中，$q_\sigma\left(\boldsymbol{x}_T \mid \boldsymbol{x}_0\right)=\mathcal{N}\left(\sqrt{\alpha_T} \boldsymbol{x}_0,\left(1-\alpha_T\right) \boldsymbol{I}\right)$是一个高斯分布， 所以公式 \eqref{eq:real_q} 可以表示为：
+其中，$q_\sigma\left(\boldsymbol{x}_T \mid \boldsymbol{x}_0\right)=\mathcal{N}\left(\sqrt{\alpha_T} \boldsymbol{x}_0,\left(1-\alpha_T\right) \boldsymbol{I}\right)$是一个正态分布， 公式 \eqref{eq:real_q} 从而重新表示为：
 \begin{equation}
     q_\sigma\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_{t-1} ; \tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right), \sigma_t^2 \mathbf{I}\right)
 \end{equation}
 
-结合公式 \eqref{eq:x0_xt} 可得：
+同样地，结合公式 \eqref{eq:x0_xt} 可得：
 \begin{equation}
     \tilde{\boldsymbol{\mu}}_t=\sqrt{\bar{\alpha}_{t-1}} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_{t-1}-\sigma_t^2} \cdot \boldsymbol{\epsilon}_t
 \end{equation}
 
-一个重要特性是，当 $\sigma_t=0$ 时，正向过程变为确定性过程 \cite{ddim}。在这种情况下，每一步的状态 $\mathbf{x}_{t-1}$ 可以表示为：
+一个重要前提是当 $\sigma_t=0$ 时，正向过程变为确定性过程 \cite{ddim}，从而可以推导出每个时间步下的状态 $\mathbf{x}_{t-1}$ 形式：
 \begin{equation}
 \begin{split}
      \mathbf{x}_{t-1} =& \sqrt{\bar{\alpha}_{t-1}}\left(\frac{\mathbf{x}_t-\sqrt{1-\bar{\alpha}_t} \cdot \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)}{\sqrt{\bar{\alpha}_t}}\right) \\
@@ -124,63 +140,77 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 \end{split}
 \end{equation}
 
-在上述确定性采样的基础，去噪扩散隐式模型提出了子序列采样的策略，
-即在反向采样过程中使用长度为 $S$ 的子序列 $\{\tau_1, \tau_2, \tau_3, ..., \tau_S\}$ 来代替完整的采样时间步数 $\{1,2,3..., T\}$，子序列的实际采样步数映射为：
+在上述采样策略的基础上，去噪扩散隐式模型可以以子序列采样的方式加速推理过程，
+即在反向采样过程中使用长度为 $S$ 的子序列 $\{\tau_1, \tau_2, \tau_3, ..., \tau_S\}$ 来代替完整的采样时间步数 $\{1,2,3..., T\}$，子序列与原有时间步之间的映射关系为：
 \begin{equation}
     \tau_j=(j-1) \cdot T / S+1  \quad\quad j=1,2,...,S 
 \end{equation}
 
-通过减少采样步数，去噪扩散隐式模型能够以较少的网络调用次数实现快速采样，同时保持较高的生成质量。
+通过减少采样步数，去噪扩散隐式模型能够以较少的网络调用次数实现快速采样，同时保持与原始去噪扩散模型相当的生成质量。
 
 % \subsection{U-Net}
 % XXXX
 
 \section{3D高斯泼溅技术}
-3D 高斯泼溅技术 \cite{3DGS} 是一种结合点云数据与 3D 高斯函数表示场景的渲染方法，能够在不同视角下生成高质量的图像。
-该方法通过可微分的光栅化渲染过程，使得生成的图像可用于端到端的优化任务，同时显著提高了渲染效率和质量。
+3D 高斯泼溅技术 \cite{3DGS} 是一种结合点云数据与 3D 高斯函数表示场景的渲染方法，能够自由视角下的高质量的图像。
+该方法基于3D 高斯定义了一个可微分的光栅化渲染过程，在提高了渲染效率和质量的同时，使得训练过程可以进行端到端的优化。
 
-每个 3D 高斯点用一个高斯分布函数 $G(\mathcal{X})$ 表示，其主要参数为协方差矩阵 $\Sigma$ 和中心位置 $\mathcal{X}$，高斯分布的定义为：
+\begin{figure}
+    \centering
+    \includegraphics[width=0.94\textwidth]{figures/ch2/3dgs.pdf}
+    \caption{3D 高斯泼溅技术示意图}
+    \label{img:3dgs}
+\end{figure}
+
+如图\ref{img:3dgs}所示，首先将原有的空间点云用一个高斯分布函数 $G(\mathcal{X})$ 表示，其包含两个重要参数：协方差矩阵 $\Sigma$ 和中心位置 $\mathcal{X}$。
+高斯分布定义为：
 \begin{equation}
 \label{formula:gaussian's formula}
     G(X)=e^{-\frac{1}{2}\mathcal{X}^T\Sigma^{-1}\mathcal{X}}
 \end{equation}
 
-其中，$\Sigma$ 控制高斯分布的形状和方向，而 $\mathcal{X}$ 定义了分布在 3D 空间中的中心位置。
+其中，$\Sigma$ 在外观上决定了3D高斯的形状和方向，$\mathcal{X}$ 决定了3D高斯中心在空间中的坐标位置。
 
-为了确保在优化过程中协方差矩阵 $\Sigma$ 的正定性质，协方差矩阵 $\Sigma$ 通常被分解为以下形式：
+为了确保在优化过程中协方差矩阵 $\Sigma$ 维持正定性质，协方差矩阵 $\Sigma$ 被分解为以下形式：
 \begin{equation}
 \label{formula:covariance decomposition}
     \Sigma = \mathbf{R}\mathbf{S}\mathbf{S}^T\mathbf{R}^T
 \end{equation}
 
-其中 $\mathbf{S}$ 为尺度矩阵，定义了分布在各个方向上的伸缩因子；$\mathbf{R}$ 为旋转矩阵，描述了高斯分布的方向性。
+其中 $\mathbf{S}$ 为尺度因子，定义了3D高斯在各个方向上的伸缩程度；$\mathbf{R}$ 为旋转因子，描述了3D高斯在空间中的方向性。
 
-此外，为了实现逼真的光照效果，3D 高斯的颜色和不透明度通过球谐函数SH（Spherical Harmonics）系数定义，
+此外，为了实现逼真的光照效果，3D 高斯的颜色和不透明度通过球谐函数系数定义，
 球谐函数提供了一种高效表达环境光照的方式。
-每个高斯点的颜色 $\mathcal{C} \in \mathbb{R}^k$ 和透明度 $\alpha \in \mathbb{R}$ 分别由 SH 系数和不透明度参数表示，其中 $k$ 为球谐函数的阶数。
-综合而言，每个 3D 高斯点具有以下属性：中心位置 $\mathcal{X} \in \mathbb{R}^3$，透明度 $\alpha \in \mathbb{R}$，旋转因子 $\mathbf{R} \in \mathbb{R}^4$，尺度因子 $\mathbf{S} \in \mathbb{R}^3$，以及由球谐函数定义的颜色 $\mathcal{C} \in \mathbb{R}^k$。
+每个3D高斯的颜色 $\mathcal{C} \in \mathbb{R}^k$ 和透明度 $\alpha \in \mathbb{R}$ 分别由球谐系数和不透明度参数表示，其中 $k$ 为球谐函数的阶数。
+综上所述，每个 3D 高斯具有以下属性：
+中心位置 $\mathcal{X} \in \mathbb{R}^3$，
+透明度 $\alpha \in \mathbb{R}$，
+旋转因子 $\mathbf{R} \in \mathbb{R}^4$，
+尺度因子 $\mathbf{S} \in \mathbb{R}^3$，
+以及由球谐函数系数定义的颜色 $\mathcal{C} \in \mathbb{R}^k$。
 
-在渲染新视角的图像时，3D 高斯分布通过微分散射\cite{differential_splatting}映射到摄像机平面。
-这一过程利用视图变换矩阵 $W$ 和投影变换（projective transformation）仿射近似的雅可比矩阵 $J$，
-将 3D 空间中的协方差矩阵 $\Sigma$ 投影为摄像机坐标系中的协方差矩阵 $\Sigma^{\prime}$，公式为：
+在渲染新视角的图像时，3D 高斯通过微分散射\cite{differential_splatting}投影到摄像机平面。
+这一过程利用视图变换矩阵 $W$ 和投影变换仿射近似的雅可比矩阵 $J$，
+将三维空间中的协方差矩阵 $\Sigma$ 投影为摄像机坐标系中的协方差矩阵 $\Sigma^{\prime}$，公式为：
 \begin{equation}
     \Sigma^{\prime} = JW\Sigma W^TJ^T.
 \end{equation} 
 
-对于生成的图像，每个像素的最终颜色由覆盖该像素的 $N$ 个高斯点的颜色和透明度混合计算得到：
+对于生成的图像，每个像素的最终颜色由覆盖该像素的 $N$ 个3D高斯的颜色和透明度混合计算得到：
 \begin{equation}
 \label{formula: splatting&volume rendering}
     C = \sum_{i\in N}c_i \alpha_i \prod_{j=1}^{i-1} (1-\alpha_i).
 \end{equation}
 
-其中 $c_i$ 和 $\alpha_i$ 分别是由协方差矩阵 $\Sigma$ 定义的高斯分布计算出的颜色和密度。这些值还会结合球谐光照系数和优化的不透明度参数进一步调整。
+其中 $c_i$ 和 $\alpha_i$ 分别是第 $i$ 个3D高斯的颜色和透明度。
 
-通过上述步骤，3D 高斯泼溅能够高效地将 3D 高斯分布映射到摄像机视图，生成细节丰富且真实感强的图像。
-该方法同时利用了球谐光照和可微分渲染，具有较高的优化潜力和渲染性能。
+另外，3D 高斯泼溅同时提出了一种自适应优化方法用于控制单位体积内的3D高斯数量和高斯密度，从而以正确的参数更好地表现场景。
+通过检查优化过程中的梯度大小和原有3D高斯最大半径，当小尺度几何图形覆盖不足时，克隆相应的3D高斯；
+当大尺度几何图形覆盖过度时，则将其分裂为两个更小3D高斯。
 
 \section{深度学习基础}
 \subsection{U-Net网络}
-为了应对医学图像分割的挑战，Unet 模型\cite{unet}于 2015 年被提出。
+为了应对医学图像分割的挑战，U-Net 模型\cite{unet}于 2015 年被提出。
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/ch2/unet.pdf}
@@ -188,61 +218,65 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
     \label{img:unet}
 \end{figure}
 
-该网络结构以其规则性和简洁性而著称，如图\ref{img:unet}所示，整体分为特征提取的下采样部分和图像重建的上采样部分。
+如图\ref{img:unet}所示，该网络结构以其规则性和简洁性而著称，整体分为特征提取的下采样部分和图像重建的上采样部分。
 这种将下采样与上采样结合的设计通常被称为编码器-解码器结构。
-由于其架构在视觉上呈现出类似字母“U”的形状，因此被命名为 Unet 网络。
+由于其架构在视觉上呈现出类似字母“U”的形状，因此被命名为 U-Net 网络。
 
 编码器部分主要负责特征提取，其架构基于卷积和下采样操作。
 编码器的基本模块包含两个连续的 3×3 卷积层、非线性激活函数 ReLU，以及一个步幅为 2 的最大池化层。
 每次经过一个这样的下采样模块后，特征通道数会增加一倍，从而逐步提取出更加抽象的特征信息。
 
 解码器部分则通过卷积和上采样的结构逐步恢复图像的分辨率。
-其核心在于利用反卷积（up-convolution）和特征拼接（Concat）操作，将浅层的细节信息与深层的特征相结合，从而增强图像的表达能力。
+其核心在于利用反卷积和特征拼接操作，将浅层的细节信息与深层的特征相结合，从而增强图像的表达能力。
 每个解码模块首先通过反卷积操作将特征图的空间分辨率提升一倍，同时特征通道数减半。
 接着，将上采样的结果与对应的编码器层特征进行拼接，以融合不同层次的特征信息。
 随后，再经过两个 3×3 卷积层和 ReLU 激活函数处理，进一步丰富图像特征。
 最终，网络通过一个 1×1 的卷积层输出所需的结果。
 
-
-
-
 \subsection{Kolmogorov-Arnold 网络}
-受通用逼近定理\cite{universal_approximation}的启发，多层感知机（MLP）\cite{mlp}提出了一种能够逼近任意连续函数的建模方法。
-通用逼近定理指出，具有非线性激活函数的单隐层神经网络，通过足够多的隐藏节点，能够在任意精度下逼近定义在闭区间上的连续函数。这一理论奠定了深度学习模型的理论基础。
+通用逼近定理\cite{universal_approximation}指出，具有非线性激活函数的单隐层神经网络，通过足够多的隐藏节点，能够在任意精度下逼近定义在闭区间上的连续函数。
+这一理论奠定了深度学习模型的理论基础。
+受通用逼近定理的启发，多层感知机（MLP）\cite{mlp}提出了一种能够逼近任意连续函数的建模方法。
 
 在此背景下，Kolmogorov–Arnold 网络（KAN）\cite{kan}作为一种基于 Kolmogorov-Arnold 表示定理\cite{kan_theorem}的模型，被认为是MLP的有效替代方案甚至改进版本。
-KAN通过引入 Kolmogorov-Arnold 表示定理，将权重视为连续可微函数，并使用表示定理来分解和逼近这些函数。这一方法不仅保留了模型逼近能力，还因其明确的数学基础而具有更强的可解释性。
+基于Kolmogorov-Arnold 表示定理，KAN 将传统 MLP 的权重参数替换为可学习的单变量函数，从而实现对复杂函数的显示分解。
+这一方法不仅保留了模型逼近能力，还因其具有明确的函数分解形式而具有更强的可解释性。
+
 与传统 MLP 不同，KAN 的特点在于：
 （1）在节点之间的边上引入非线性激活函数，使其更贴近实际问题中复杂函数的建模需求；
 （2）网络中的每个连续函数都可以通过 Kolmogorov–Arnold 表示定理进行分解，从而提高模型的灵活性和泛化能力。
 
-
-Kolmogorov-Arnold 表示定理指出，对于任意多元连续函数$f(x_1, \ldots, x_n)$，都可以表示为单变量连续函数的嵌套叠加：
+Kolmogorov-Arnold 表示定理指出，对于任意定义在n维闭区间上的多元连续函数$f(x_1, \ldots, x_n)$，都可以表示为多个单变量连续函数的嵌套叠加：
 \begin{equation}
+    \label{formula:kan}
 f(x_1, \ldots, x_n)=\sum_{q=1}^{2 n+1} \Phi_q(\sum_{p=1}^n \phi_{q, p}(x_p))
 \end{equation}
 
 其中 $\phi_{q, p}$ 是关于每个输入变量 $x_p$ 的单变量函数，$\Phi_q$ 是嵌套函数。
 基于这一分解，KAN 的网络结构可以对这些单变量函数和嵌套函数进行参数化学习。
 
-为实现这一目标，KAN 通常将 $\phi_{q, p}$ 参数化为 B 样条曲线，B 样条因其局部可控性和灵活的函数拟合能力而成为首选。
-通过学习样条基函数的权重系数，KAN 可以有效地拟合复杂的单变量函数形式，同时避免过拟合的风险。一层 KAN 可以简单表示为：
+为实现这一目标，KAN 通常利用B 样条曲线来参数化 $\phi_{q, p}$，
+B 样条曲线具备局部可控性和灵活的函数拟合能力，可以对复杂函数进行平滑拟合。
+通过学习样条基函数的权重系数，KAN 可以有效地拟合复杂的单变量函数形式，同时避免过拟合的风险。
+根据公式 \eqref{formula:kan}，可以将单层 KAN 简化为：
 \begin{equation}
     \Phi = {\phi_{q,p}}
 \end{equation}
 
-KAN的内部函数定义为 $n_{in}=n, n_{out}=2n+1$，其目的是对输入数据进行扩展映射以满足 Kolmogorov-Arnold 表示定理对函数分解的要求；
-而外部函数则负责对扩展后的特征进行聚合，定义为 $n_{in}=2n+1, n_{out}=1$。这种分解方式使得每一层能够模拟复杂的嵌套连续函数。
-KAN 的网络形状可以表示为 $[n_0, n_1, …, n_L]$，其中 $n_i$ 是第 $i$ 层计算图的节点数。
-每一层的计算由激活函数 $\phi_{l,j,i}$ 描述，该函数连接第 $l$ 层的第 $i$ 个神经元 $(l,i)$ 和第 $l+1$ 层的第 $j$ 个神经元 $(l+1,j)$，其数学表达为：
+其中 $\phi_{q,p}$ 作为这一层的内部函数，而 $\Phi$ 作为这一层的外部函数。
+内部函数的输入输出维度定义为 $n_{in}=n, n_{out}=2n+1$，其目的是对输入数据进行扩展映射以满足 Kolmogorov-Arnold 表示定理对函数分解的要求；
+而外部函数则负责对扩展后的特征进行聚合，输入输出维度定义为 $n_{in}=2n+1, n_{out}=1$。这种分解方式使得每一层能够模拟复杂的嵌套连续函数。
+
+KAN 的网络拓扑结构可以表示为 $[n_0, n_1, …, n_L]$，其中 $n_l$ 是第 $l$ 层计算图的节点数。
+第 $l$ 层的单变量函数用激活函数 $\phi_{l,j,i}$ 描述，表示该函数连接第 $l$ 层的第 $i$ 个神经元 $(l,i)$ 和第 $l+1$ 层的第 $j$ 个神经元 $(l+1,j)$：
 \begin{equation}
     \phi_{l, j, i}, \quad l=0, \cdots, L-1, \quad i=1, \cdots, n_l, \quad j=1, \cdots, n_{l+1}
 \end{equation}
 
 在每一层的计算中，令 $x_{l,i}$ 表示第 $l$ 层第 $i$ 个神经元的预激活值，
-则激活后的值 $\tilde{x}{l,j,i}$ 由以下公式给出：
+则激活后的值 $\tilde{x}_{l,j,i}$ 由以下公式给出：
 \begin{equation}
-    \tilde{x}_{l,j,i} \equiv \phi_{l,j,i}(x_{l,i}).
+    \tilde{x}_{l,j,i} = \phi_{l,j,i}(x_{l,i}).
 \end{equation}
 
 接下来，第 $l+1$ 层的第 $j$ 个神经元的值 $x_{l+1,j}$ 可由下式计算：
@@ -260,8 +294,11 @@ KAN 的网络形状可以表示为 $[n_0, n_1, …, n_L]$，其中 $n_i$ 是第 
     \operatorname{KAN}(\mathbf{x})=\left(\boldsymbol{\Phi}_{L-1} \circ \boldsymbol{\Phi}_{L-2} \circ \cdots \circ \boldsymbol{\Phi}_1 \circ \boldsymbol{\Phi}_0\right) \mathbf{x}
 \end{equation}
 
-后续章节中，我们将利用 KAN 对空间点的位置变化进行预测，其理论基础和性能表现将进一步验证 KAN 在低维度场景下的优势。
-虽然KAN在训练速度上存在瓶颈，但在可解释性和准确性上优于MLP，特别是对于低维度数据的训练上，这也给后文借助KAN对空间点的位置变化进行预测的信心。
+缩放定律指的是随着模型大小的增加，模型性能如何变化的规律。
+研究表明KAN相比MLP还具有更好的缩放速度，通过增加网络层数和隐藏节点数，KAN 的性能提升速度远高于 MLP。
 
 \section{本章小结}
-XXXXX
+本章介绍了本文研究内容及方法中所设计的相关技术与理论，包括去噪扩散概率模型、3D高斯泼溅技术以及相关深度学习的基本理论知识。
+其中，去噪扩散模型可以从高斯噪声中逐步去噪还原出逼真的图像，并且利用去噪隐式模型可以实现快速采样；
+3D高斯泼溅技术结合点云数据与3D高斯函数表示场景的渲染方法，能够自由视角下的高质量的图像，
+另外介绍了U-Net网络和Kolmogorov-Arnold网络的基本结构和原理，为后续章节的水下增强算法设计和三维重建算法设计奠定理论基础。
