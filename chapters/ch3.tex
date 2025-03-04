@@ -305,7 +305,7 @@ UIEB 数据集包含 890 张配对的水下图像（paired）以及 60 张无参
 两个数据集的训练集和测试集划分情况如表 \ref{tab:dataset-split}所示。
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/ch3/scatter.pdf} \hspace{0.7cm}
+    \includegraphics[width=0.7\textwidth]{figures/ch3/scatter.pdf} \hspace{0.7cm}
     \caption{EUVP 和 UIEB 数据集中图像的分辨率分布}
     \label{img:scatter}
 \end{figure}
@@ -313,7 +313,7 @@ UIEB 数据集包含 890 张配对的水下图像（paired）以及 60 张无参
 \begin{table}[ht]
 	\vspace{-0.4mm}
 	\centering
-	\caption{\label{tab:dataset-split}EUVP与UIEB数据集划分）}
+	\caption{\label{tab:dataset-split}EUVP与UIEB数据集划分}
 	\vspace{-2mm}
 	\setlength{\tabcolsep}{2.6mm}{
 		\begin{tabular}{lccc}
@@ -514,13 +514,15 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
 \end{table*}   
 
 \subsection{主观评价}
-如图\ref{img:scatter} 展示的 EUVP 和 UIEB 数据集中图像的分辨率分布，基准数据集中的图像分辨率大小并不一致，
-而大多数基于深度学习的水下图像增强方法（如 FGAN\cite{funie_gan}、UGAN\cite{ugan}、U-shape\cite{u-shape} 和 STSC\cite{stsc}）
-均在固定的输入和输出尺寸下进行训练和推理。而本章方法具备更高的分辨率适应性。
+从图\ref{img:scatter} EUVP 和 UIEB 数据集图像的分辨率分布中可以看出，基准数据集中的图像分辨率大小并不一致，
+而大多数基于深度学习的水下图像增强方法，例如 FGAN\cite{funie_gan}、UGAN\cite{ugan}、U-shape\cite{u-shape} 和 STSC\cite{stsc}，
+均是在固定的输入和输出尺寸（$256 \times 256$）下进行训练和推理，这会在一定程度上限制方法的适用性。
 
-如图\ref{img:visual-euvp}和图\ref{img:visual-uieb}所示，首先在$256 \times 256$ 图像分辨率尺寸下实验对比了不同方法在 EUVP 和 UIEB 数据集上的主观增强效果。
-实验结果表明，本章提出的水下图像增强方法在保持图像真实感的同时，显著提升了水下物体的色彩表现。
-尤其在蓝色和绿色主导的水域场景中，可以增强画面色彩饱和度和自然感。
+如图\ref{img:visual-euvp}和图\ref{img:visual-uieb}所示，本章首先在$256 \times 256$的固定图像分辨率尺寸下实验对比了不同方法在 EUVP 和 UIEB 数据集上的主观增强效果。
+在EUVP数据集上，本章提出的水下图像增强方法在多数情况下能够取得更好的视觉效果，生成结果可以保持更加丰富的色彩和对比度，
+例如图\ref{img:visual-euvp}第三行的结果中，本章的方法相比如其他方法可以更好地恢复物体的颜色信息，图像整体视觉效果更加自然，不会出现边缘伪影等问题。
+对于UIEB数据集，由于其原始图像分辨率较大（图\ref{img:visual-uieb}中标注为 “*” 的方法限制图像分辨率为 $256 \times 256$），在进行压缩时会丢失较多的图像细节，因此多种方法的生成结果在视觉效果上较为相似，
+但是本章的方法依旧在亮度、对比度、饱和度等指标上表现出良好的质量，尤其在蓝色和绿色主导的水域场景中，可以增强画面色彩饱和度和自然感。
 \begin{figure}[t]
 	\begin{center}
 		\begin{tabular}{ccccccccc}
@@ -578,7 +580,7 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
 		\end{tabular}
 	\end{center}
 	\vspace{-0.4mm}
-	\caption{\label{img:visual-euvp}EUVP 数据集上的主观结果比较。在大多数情况下，本章的方法相比其他方法能够更好地恢复物体的颜色，提升画面色彩和对比度。}
+	\caption{\label{img:visual-euvp}EUVP 数据集上不同模型结果的主观比较}
 	\vspace{-0.3mm}
 \end{figure} 
 
@@ -619,13 +621,15 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
     \end{tabular}
 \end{center}
 \vspace{-1mm}
-\caption{\label{img:visual-uieb}UIEB 数据集上的主观结果比较。本章的方法在高分辨率图像上依旧保持良好的色彩校正能力。（标注为 “*” 的方法限制图像分辨率为 $256 \times 256$）。}
+\caption{\label{img:visual-uieb}UIEB 数据集上不同模型结果的主观比较}
 \vspace{-1mm}
 \end{figure*}
 
-实验进一步分析了不同方法在高分辨率图像上的增强效果（如图 \ref{img:visual-detail} 所示），
-与需要对图像进行压缩处理的方法（FGAN\cite{funie_gan}、UGAN\cite{ugan}、U-shape\cite{u-shape} 和 STSC\cite{stsc}）对比，
-本章提出的水下图像增强方法可以在不损失图像细节的情况下对任意分辨率的水下图像进行有效增强，在保留物体表面的细节纹理的同时增强色彩和对比度。
+为了进一步探明本章方法在高分辨率图像上的增强效果并与其他固定图像尺寸的方法进行对比，因此还对UIEB数据集进行了保持原始分辨率效果的对照试验。
+对于存在输入大小限制的四种模型（FGAN\cite{funie_gan}、UGAN\cite{ugan}、U-shape\cite{u-shape} 和 STSC\cite{stsc}）使用线性插值来调整其生成结果的图像分辨率，
+结果如图\ref{img:visual-detail}所示，
+可以看出本章提出的水下图像增强方法可以在不损失图像原始细节的情况下对任意分辨率的水下图像进行有效增强，在保留物体表面的细节纹理的同时增强色彩和对比度，
+相比于其他模型具有明显的优势。
 
 \begin{figure}[ht]
 	\begin{center}
@@ -649,7 +653,7 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
             \\ 
 		\end{tabular}
 	\end{center}
-	\caption{ \label{img:visual-detail}UIEB 数据集中不同分辨率图像的增强结果比较。对于存在输入大小限制的四种模型使用线性插值来调整其结果的图像分辨率。}
+	\caption{ \label{img:visual-detail}UIEB 数据集中不同分辨率图像的增强结果比较}
 	\vspace{-2mm}
 \end{figure}
 
@@ -701,11 +705,11 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
 
 \subsection{结果讨论}
 \subsubsection{水下语义恢复}
-为了验证本章提出的水下图像增强算法在减轻水下环境对语义干扰上的有效性，
-采用显著性区域检测网络 \cite{sod} 实验对比了原始退化图像与增强后图像的显著性区域检测结果。
-如图 \ref{img:sod} 所示，本章的水下图像增强方法显著提升了水下图像的语义信息，
-使得原本模糊或难以分辨的显著性区域在增强后的图像中得到了更清晰的表达，
-说明增强后的图像能够更好地支持如目标检测和语义分割等图像处理的下游任务，
+为了验证提出的水下图像增强算法在减轻水下环境对图像语义干扰上的有效性，
+本章实验选取了一种显著性区域检测网络 \cite{sod} 用来对比原始退化图像与增强后图像显著性区域检测结果。
+如图 \ref{img:sod} 所示，本章的水下图像增强方法可以在一定程度上提升水下图像的语义信息，
+使得原本模糊和难以分辨的图像显著性区域在经过算法增强后得到缓解，
+这种提升可以让算法更好地支持如目标检测和语义分割等图像处理的下游任务。
 \begin{figure}[ht]
 	\begin{center}
 		\begin{tabular}{ccccccccc}
@@ -754,17 +758,17 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
             \includegraphics[width = 0.10\linewidth, height=0.10\linewidth]{figures/ch3/compare/discussion/SOD/sod/9.png}  \\
 		\end{tabular}
 	\end{center}
-	\caption{\label{img:sod}原始图像与增强后的图像在显著性区域检测任务中的比较。增强后图像的显著区域边界更加清晰，语义更完整。}
+	\caption{\label{img:sod}原始图像与增强后的图像在显著性区域检测任务中的对比}
 	\vspace{-2mm}
 \end{figure}     % sod
 
 \subsubsection{网络架构讨论}
 为了探讨网络架构对模型性能的影响，本章对不同网络组件进行了消融实验（如表 \ref{tab:ablation} 所示）。
-实验重点分析了时间步嵌入与残差注意力模块对模型的增强效果及其在性能与效率间的权衡。
-结果表明，在编码器-解码器的残差模块中去除时间步嵌入（w/o timestep）会明显降低模型对采样时间步的敏感性，从而无法更准确地识别扩散过程中的动态变化。
-在所有层中引入残差注意力模块（w/ all layer attention）可以较大的提升模型的特征提取能力，但运行时间显著增加至 1022.20 ms。
-相比之下，仅在一层中加入残差注意力模块（w/ one layer attention）时，尽管 PSNR 和 SSIM 稍有下降（分别为 29.90 和 0.91），但运行时间显著降低至 889.32 ms。
-为了平衡性能和效率，可以仅在特征分辨率为 $16 \times 16$ 的特定层中引入残差注意力模块（如图\ref{img:network}所示），既能保持较高的效果，又能降低一定的推理时间。
+实验重点分析了时间步嵌入与残差注意力模块对模型的最终表现的影响，以及模型在质量与效率之间的权衡。
+结果表明，在编码器-解码器的残差模块中去除时间步嵌入（w/o timestep）会明显降低模型对采样时间步的敏感性，从而无法更准确地识别扩散过程中的动态变化，模型精度大大折扣，
+在所有层中引入残差注意力模块（w/ all layer attention）可以一定程度上提升模型的特征提取能力，但运行时间增加至 1022.20 ms，显著增加了模型的时间开销。
+相比之下，仅在一层中加入残差注意力模块（w/ one layer attention）时，可以有效减低推理成本，同时模型在PSNR和SSIM指标上不会出现明显下降。
+因此本章最终为了平衡性能和效率，仅在特征分辨率为 $16 \times 16$ 的特定层中引入残差注意力模块（如图\ref{img:network}所示）。
 \begin{table}[ht]
     \vspace{-0.4mm}
     \centering
@@ -787,15 +791,16 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
 \end{table}
 
 \subsubsection{步长与采样步数的均衡}
-本章最后进一步探讨了滑动窗口步长 ($stride$) 和采样步数 ($S$) 对生成图像效果的影响，以探讨如何在生成质量与效率之间取得最佳平衡。
-如图\ref{img:stride-S}(a)所示，当滑动窗口步长等于补丁大小（$stride=64$）时，补丁之间完全独立生成，导致过渡区域出现不自然的拼接问题；
-当滑动窗口步长略小于补丁大小（如 $stride=48$ 或 $stride=32$）时，补丁之间有适当重叠，重叠区域通过均值采样实现自然的像素过渡，从而生成更平滑、无明显伪影的图像；
-进一步减小滑动窗口步长（如 $stride=16$）时，生成结果无明显提升，但其计算复杂度会对应增加。
+除了模型架构，滑动窗口步长 ($stride$) 和采样步数 ($S$) 也是影响模型推理时间的重要因素。
+本章最后进一步探讨了滑动窗口步长 ($stride$) 和采样步数 ($S$) 对生成图像质量和时间开销的影响，以探讨如何在质量与效率之间取得最佳平衡。
+如图\ref{img:stride-S}(a)所示，当滑动窗口步长等于补丁大小（$stride=64$）时，补丁之间完全独立，导致过渡区域会出现明显的拼接痕迹；
+当滑动窗口步长略小于补丁大小（如 $stride=52/48$）时，补丁之间有适当重叠，重叠区域通过均值采样实现自然的过渡效果，从而生成更平滑、无明显伪影的图像；
+进一步减小滑动窗口步长（如 $stride=32/16$）时，生成结果无明显提升，但其计算复杂度会对应增加。
 
 在基于去噪扩散隐式模型的采样过程中，适当减少采样步数 $S$ 能够显著加速反向去噪过程，但也会对最终生成结果产生负面影响。
-如图 \ref{img:stride-S}(b) 所示，采样步数过小（如 $S=2$）时，生成图像的质量明显下降，伪影显著；
+如图 \ref{img:stride-S}(b) 所示，采样步数过小（如 $S=2$）时，生成图像的质量明显下降，具有明显的伪影；
 当 $S$ 增加至 10 或 15 时，生成效果显著提升，接近最优结果。
-进一步增加 $S$（如 $S=20$）时，生成质量提升趋于饱和，说明适当的采样步数已足够实现高质量图像生成。
+进一步增加 $S$（如 $S=20$）时，生成质量提升趋于稳定，说明适当的采样步数已足够实现高质量图像生成。
 \begin{figure}[ht]
     \begin{center}
         \begin{tabular}{ccccccc}
@@ -826,18 +831,20 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
     \vspace{-4mm}
 \end{figure}
 
-为了进一步验证步长与采样步数的均衡关系，本章在 RUIE \cite{RUIE} 数据集上进行了参数交叉对比实验。
-如图 \ref{img:param} 所示，即便采样步数 $S$ 较小或滑动窗口步长$stride$较大，在某些组合下依然能获得良好的增强效果。
-这说明较小的步长使得更多的重叠区域参与信息交互与计算，使得能够在较少的采样步数下获得令人满意的结果。
-\begin{figure}[t]
+为了进一步验证步长与采样步数的均衡关系，以及检查模型在新样本下的泛化能力，
+本章利用预训练模型在 RUIE \cite{RUIE} 数据集上进行了参数交叉的对比实验。
+如图 \ref{img:param} 所示，即便采样步数 $S$ 较小或滑动窗口步长$stride$较大，在某些组合下依然能获得良好的增强效果，
+这说明$S$和$stride$在一定程度上具有互补性，比如较小的步长使得更多的重叠区域参与信息交互，使得能够在较少的采样步数下获得令人满意的结果。
+\begin{figure}
     \centering
     \includegraphics[width=0.98\linewidth]{figures/ch3/compare/discussion/param.pdf}
-    \caption{\label{img:param}不同步长$stride$和采样步数$S$参数组合下的的增强效果}
+    \caption{\label{img:param}不同步长$stride$和采样步数$S$的结果}
 \end{figure}
 
 \section{本章小结}
-本章提出了一种基于扩散模型的水下图像增强方法，通过引入时间步嵌入和残差注意力模块，显著提升了模型的特征提取能力。
-同时，本章通过实验验证了步长与采样步数的均衡关系，为实际应用中的参数选择提供了参考。
-实验结果表明，本章提出的方法在主观视觉效果和客观指标上均表现出色，能够有效提升水下图像的视觉效果和语义信息。
+本章提出了一种基于去噪扩散模型的水下图像增强方法，采用补丁引导的采样策略，摆脱对数据集规模的依赖，同时实现保持原有分辨率的水下图像的生成。
+并且重新调整了适用于补丁大小的噪声估计网络，通过优化各个模块的结构，提升噪声预测的精度。
+最后通过与不同基线模型进行对比实验，验证了本章提出的方法在主观视觉效果和客观指标上的出色表现，并进一步讨论了模型架构以及自定义参数对模型性能的影响。
+
 
 
