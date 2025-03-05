@@ -7,11 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- 添加博士学位论文的“创新性说明”的示例（研究生院 2025-02-27 Word 模板，[#423](https://github.com/ustctug/ustcthesis/issues/423)）。
+
+## [4.0.0-beta.6] - 2025-02-25
+
+### Changed
+
+- 调整页眉距边界 2.0 cm（研究生院 2024-12-05 Word 模板修改，[#411](https://github.com/ustctug/ustcthesis/issues/411#issuecomment-2652543582)）。
+- 空白页添加页码（研究生院 2024-12-05 Word 模板修改，[#390](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2652974038)）。
+- 修改符号说明的页脚样式（研究生院 2024-12-05 Word 模板修改，[#411](https://github.com/ustctug/ustcthesis/issues/411#issuecomment-2656237617)）。
+- 图注较短时居中（[#414](https://github.com/ustctug/ustcthesis/issues/414)）。
+- 修改章节标题的格式（研究生院 2024-12-05 Word 模板修改，[#411](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2677732743)）。
+
+## [4.0.0-beta.5] - 2025-02-10
+
+### Fixed
+
+- 修正英文摘要标题“ABSTRACT”的粗体（[#411](https://github.com/ustctug/ustcthesis/issues/411#issuecomment-2577181494)）。
+- 修正中文封面的“企业导师”（[#411](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2646114373)）。
+
+## [4.0.0-beta.4] - 2025-01-05
+
+### Added
+
+- 新增科研成果列表环境 `theachievements`。
+- 新增图注命令 `\figurenote`。
+
+### Changed
+
+- 章标题取消加粗（研究生院 2024-12-05 Word 模板修改，[#411](https://github.com/ustctug/ustcthesis/issues/411)）。
+- 调整科研成果示例（研究生院 2024-12-05 Word 模板修改，[#411](https://github.com/ustctug/ustcthesis/issues/411)）。
+- 更新专业硕士论文封面：“专业领域”改为“学科专业”，“Advisor”改为“Practice supervisor”（研究生院 2024-12-05 Word 模板修改，[#390](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2558042581)）。
+- 图表的标题字号改为 11pt（研究生院 2024-12-05 Word 模板修改）。
+- 表题改为宋体（研究生院 2024-12-05 Word 模板修改）。
+- 图注、表注字号改为 11pt（研究生院 2024-12-05 Word 模板修改）。
+- 调整插图、表格与文字的间距（研究生院 2024-12-05 Word 模板修改）。
+- 修改表单元格中的字号和行距（研究生院 2024-12-05 Word 模板修改）。
+
+### Deprecated
+
+- 图注、表注命令 `\note` 已经过时，改为使用 `\figurenote` 或 `\tablenote` 命令。
+
+## [4.0.0-beta.3] - 2024-12-15
+
+### Added
+
+- 新增“插图和附表清单” `\listoffiguresandtables`（研究生院 2024-12-05 Word 模板修改）。
+
+### Changed
+
+- 英文封面的“Finished time”改为“Completion date”（研究生院 2024-12-05 Word 模板修改，[#390](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2532580113)）。
+- 英文摘要的“Key Words”改为大写“KEY WORDS”（研究生院 2024-12-05 Word 模板修改，[#390](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2532580113)）。
+- 章标题较短时（四字以下）不再空字（研究生院 2024-12-05 Word 模板修改，[#390](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2532580113)）。
+- “在读期间发表的学术论文与取得的研究成果”改为“在读期间取得的科研成果”（研究生院 2024-12-05 Word 模板修改，[#390](https://github.com/ustctug/ustcthesis/issues/390#issuecomment-2532580113)）。
+- 关键词之间改用分号间隔（研究生院 2024-12-05 Word 模板修改）。
+- 英文摘要的页眉改为大写“ABSTRACT”（研究生院 2024-12-05 Word 模板修改）。
+- 目录的章标题改为黑体小四号（研究生院 2024-12-05 Word 模板修改）。
+- 目录的二级节标题改为宋体（研究生院 2024-12-05 Word 模板修改）。
+- 目录的引导线改为句点（研究生院 2024-12-05 Word 模板修改）。
+- “表格清单”改为“附表清单”（研究生院 2024-12-05 Word 模板修改）。
+- 更新英文封面布局（研究生院 2024-12-05 Word 模板修改）。
+
+## [4.0.0-beta.2] - 2024-11-18
+
+### Changed
+
+- 封面中“导师姓名”改为“导师”（研究生院 2024-10-14 Word 模板修改，[#406](https://github.com/ustctug/ustcthesis/issues/406)）。
+
+## [4.0.0-beta.1] - 2024-10-18
+
 ### Changed
 
 - 本科生参考文献改用 GB/T 7714 格式（[zepinglee/gbt7714-bibtex-style#169](https://github.com/zepinglee/gbt7714-bibtex-style/issues/169)）。
-- 专业博士的封面改为“工程博士”（研究生院 2024-10-14 Word 模板修改，[#402](https://github.com/ustctug/ustcthesis/issues/402)）。
-- 封面中“导师姓名”改为“导师”（研究生院 2024-10-14 Word 模板修改，[#406](https://github.com/ustctug/ustcthesis/issues/406)）。
+- 专业博士的封面改为“工程博士”（研究生院 2024-09-23 Word 模板修改，[#402](https://github.com/ustctug/ustcthesis/issues/402)）。
 
 ## [3.3.5] - 2024-05-09
 
@@ -321,7 +391,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 优化图注、算法的行距。
 - 二级以下节标题编号下采用“1.”、“(1)”、“①”。
 
-[Unreleased]: https://github.com/ustctug/ustcthesis/compare/v3.3.5...HEAD
+[Unreleased]: https://github.com/ustctug/ustcthesis/compare/v4.0.0-beta.6...HEAD
+[4.0.0-beta.6]: https://github.com/ustctug/ustcthesis/compare/v4.0.0-beta.5...v4.0.0-beta.6
+[4.0.0-beta.5]: https://github.com/ustctug/ustcthesis/compare/v4.0.0-beta.4...v4.0.0-beta.5
+[4.0.0-beta.4]: https://github.com/ustctug/ustcthesis/compare/v4.0.0-beta.3...v4.0.0-beta.4
+[4.0.0-beta.3]: https://github.com/ustctug/ustcthesis/compare/v4.0.0-beta.2...v4.0.0-beta.3
+[4.0.0-beta.2]: https://github.com/ustctug/ustcthesis/compare/v4.0.0-beta.1...v4.0.0-beta.2
+[4.0.0-beta.1]: https://github.com/ustctug/ustcthesis/compare/v3.3.5...v4.0.0-beta.1
 [3.3.5]: https://github.com/ustctug/ustcthesis/compare/v3.3.4...v3.3.5
 [3.3.4]: https://github.com/ustctug/ustcthesis/compare/v3.3.3...v3.3.4
 [3.3.3]: https://github.com/ustctug/ustcthesis/compare/v3.3.2...v3.3.3

@@ -14,15 +14,15 @@ LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
 (Font)              scaled to size 7.22623pt on input line ....
 Completed box being shipped out [1]
 \vbox(722.98453+0.0)x435.04271
-.\glue -29.59084
-.\vbox(752.57536+0.0)x417.11752, shifted 17.92519
-..\vbox(21.33955+0.0)x417.11752, glue set 21.33955fil
+.\glue -16.36447
+.\vbox(739.349+0.0)x417.11752, shifted 17.92519
+..\vbox(15.36429+0.0)x417.11752, glue set 15.36429fil
 ...\glue 0.0 plus 1.0fil
 ...\hbox(0.0+0.0)x417.11752
 ....\special{color push  Black}
 ....\hbox(0.0+0.0)x417.11752
 ....\special{color pop}
-..\glue 8.2511
+..\glue 1.0
 ..\glue(\lineskip) 0.0
 ..\vbox(700.50723+0.0)x417.11752, glue set 487.70517fil
 ...\write-{}
@@ -403,23 +403,23 @@ LaTeX Font Info:    Font shape `TU/texgyrecursor(0)/m/n' will be
 (Font)              scaled to size 11.37337pt on input line ....
 Completed box being shipped out [2]
 \vbox(722.98453+0.0)x435.04271
-.\glue -29.59084
-.\vbox(752.57536+0.0)x417.11752, shifted 17.92519
-..\vbox(21.33955+0.0)x417.11752, glue set 21.33955fil
+.\glue -16.36447
+.\vbox(739.349+0.0)x417.11752, shifted 17.92519
+..\vbox(15.36429+0.0)x417.11752, glue set 15.36429fil
 ...\glue 0.0 plus 1.0fil
 ...\hbox(0.0+0.0)x417.11752
 ....\special{color push  Black}
 ....\hbox(0.0+0.0)x417.11752
 ....\special{color pop}
-..\glue 8.2511
+..\glue 1.0
 ..\glue(\lineskip) 0.0
 ..\vbox(700.50723+0.0)x417.11752, glue set >20000.0fil
 ...\write-{}
 ...\write-{}
 ...\write1{\@writefile{toc}{\protect \contentsline {chapter}{参考文献}{\thepage }{}\protected@file@percent }}
-...\marks1{\__mark_id:n {1}\protect \ustc@spacetitle  {参考文献}}
+...\marks1{\__mark_id:n {1}参考文献}
 ...\marks2{\__mark_id:n {2}}
-...\mark{{\protect \ustc@spacetitle  {参考文献}}{}}
+...\mark{{参考文献}{}}
 ...\write1{\@writefile{lof}{\protect \addvspace {10.0pt}}}
 ...\write1{\@writefile{lot}{\protect \addvspace {10.0pt}}}
 ...\glue(\topskip) 12.0
@@ -429,15 +429,15 @@ Completed box being shipped out [2]
 ...\glue 0.0
 ...\glue(\parskip) 0.0
 ...\glue(\parskip) 0.0
-...\hbox(12.49467+2.87473)x417.11752, glue set 164.39377fil
+...\hbox(12.6071+3.01927)x417.11752, glue set 176.43877fil
 ....\glue(\leftskip) 0.0 plus 1.0fil
-....\TU/FandolHei(0)/b/n/16.06 参
-....\glue 8.03 plus 0.9761 minus 0.49838
-....\TU/FandolHei(0)/b/n/16.06 考
-....\glue 8.03 plus 0.9761 minus 0.49838
-....\TU/FandolHei(0)/b/n/16.06 文
-....\glue 8.03 plus 0.9761 minus 0.49838
-....\TU/FandolHei(0)/b/n/16.06 献
+....\TU/FandolHei(0)/m/n/16.06 参
+....\glue 0.0 plus 1.37729
+....\TU/FandolHei(0)/m/n/16.06 考
+....\glue 0.0 plus 1.37729
+....\TU/FandolHei(0)/m/n/16.06 文
+....\glue 0.0 plus 1.37729
+....\TU/FandolHei(0)/m/n/16.06 献
 ....\kern -0.00017
 ....\kern 0.00017
 ....\penalty 10000
@@ -2767,15 +2767,15 @@ Completed box being shipped out [2]
 ...\special{color pop}
 Completed box being shipped out [3]
 \vbox(722.98453+0.0)x435.04271
-.\glue -29.59084
-.\vbox(752.57536+0.0)x417.11752, shifted 17.92519
-..\vbox(21.33955+0.0)x417.11752, glue set 21.33955fil
+.\glue -16.36447
+.\vbox(739.349+0.0)x417.11752, shifted 17.92519
+..\vbox(15.36429+0.0)x417.11752, glue set 15.36429fil
 ...\glue 0.0 plus 1.0fil
 ...\hbox(0.0+0.0)x417.11752
 ....\special{color push  Black}
 ....\hbox(0.0+0.0)x417.11752
 ....\special{color pop}
-..\glue 8.2511
+..\glue 1.0
 ..\glue(\lineskip) 0.0
 ..\vbox(700.50723+0.0)x417.11752, glue set 527.85088fil
 ...\glue(\topskip) 3.88469

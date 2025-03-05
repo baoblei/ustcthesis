@@ -3,7 +3,7 @@
 % !TeX spellcheck = en_US
 
 %
-% Copyright (C) 2015-2024 by USTC TeX Users Group <https://github.com/ustctug>
+% Copyright (C) 2015-2025 by USTC TeX Users Group <https://github.com/ustctug>
 %
 % This file may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3c
@@ -113,7 +113,7 @@
 \title{\cls{ustcthesis} 使用说明}
 \author{Zeping Lee\thanks{zepinglee AT gmail.com} \and
         seisman\thanks{seisman.info AT gmail.com} }
-\date{v3.3.5\qquad 2024-05-09}
+\date{v4.0.0-beta.6\qquad 2025-02-25}
 \maketitle
 
 
@@ -391,6 +391,7 @@ key-value 的方式填写，如：
     \opt{author}       & \opt{author*}       & 作者姓名      \\
     \opt{speciality}   & \opt{speciality*}   & 学科专业      \\
     \opt{supervisor}   & \opt{supervisor*}   & 导师      \\
+    \opt{supepractice-supervisorrvisor} & \opt{practice-supervisor*} & 导师 \\
     \opt{date}         & -                   & 完成时间      \\
     \opt{secret-level} & \opt{secret-level*} & 密级          \\
     \opt{secret-year}  & -                   & 保密/控阅年限 \\
@@ -403,7 +404,6 @@ key-value 的方式填写，如：
   \item \cs{ustcsetup} 使用 \pkg{kvsetkeys} 机制，配置项之间不能有空行，否则会报错。
   \item 其中带 |*| 后缀的选项用于设置英文封面。
   \item 导师姓名 \opt{supervisor} 允许多个姓名，使用“,”（西文逗号 U+002C）隔开。
-  \item 软件工程专业使用 \opt{advisor} 和 \opt{advisor*} 设置企业导师的姓名。
   \item 完成时间 \opt{date} 应使用 ISO 格式（yyyy-mm-dd），默认为当前日期。
 \end{itemize}
 
@@ -421,14 +421,15 @@ key-value 的方式填写，如：
 \DescribeEnv{abstract*}
 \DescribeEnv{notation}
 \DescribeEnv{acknowledgements}
-\DescribeEnv{publications}
+\DescribeEnv{achievements}
 对于特殊的章节，\cls{ustcthesis} 还提供了相应的环境：
 \begin{itemize}
   \item 中文摘要：\env{abstract}
   \item 英文摘要：\env{abstract*}
   \item 符号说明：\env{notation}
   \item 致谢：    \env{acknowledgements}
-  \item 发表成果：\env{publications}
+  \item 科研成果：\env{achievements}
+  \item 科研成果列表：\env{theachievements}
 \end{itemize}
 
 \DescribeOption{keywords}
@@ -440,7 +441,7 @@ key-value 的方式填写，如：
     这里是摘要。
     \ustcsetup{
       keywords  = {学位论文, 摘要, 关键词},
-      keywords* = {dissertation, abstract, keywords},
+      keywords* = {Dissertation, Abstract, Keywords},
     }
   \end{abstract}
 \end{latex}
@@ -448,21 +449,23 @@ key-value 的方式填写，如：
 \DescribeMacro{\tableofcontents}
 \DescribeMacro{\listoffigures}
 \DescribeMacro{\listoftables}
-目录和图、表清单可以使用命令自动生成：
+\DescribeMacro{\listoffiguresandtables}
+目录、插图和附表清单可以使用命令自动生成：
 \begin{itemize}
   \item 目录：  \cs{tableofcontents}
-  \item 图清单：\cs{listoffigures}
-  \item 表清单：\cs{listoftables}
+  \item 插图清单：\cs{listoffigures}
+  \item 附表清单：\cs{listoftables}
+  \item 插图和附表清单：\cs{listoffiguresandtables}
 \end{itemize}
 
 
-\subsection{浮动体}
+\subsection{插图和表格}
 
 《撰写手册》要求图题置于图的下方，表题置于表的上方。
-\LaTeX{} 的 \cs{caption} 命令并不能控制在浮动体中的位置，
+\LaTeX{} 的 \cs{caption} 命令并不能控制标题的位置，
 需要作者注意写在合适的地方。
 
-\DescribeMacro{\note}
+\DescribeMacro{\figurenote}
 本模板还提供了 \cs{note}\marg{notes} 命令，用于在图表中添加注释。
 
 关于图片的并排，推荐使用较新的 \pkg{subcaption} 宏包，不建议使用

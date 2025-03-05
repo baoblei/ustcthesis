@@ -1,5 +1,5 @@
 %
-% Copyright (C) 2015-2024 by USTC TeX Users Group <https://github.com/ustctug>
+% Copyright (C) 2015-2025 by USTC TeX Users Group <https://github.com/ustctug>
 %
 % This file may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3c
@@ -11,8 +11,8 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[2017/04/15]
-\newcommand\ustcthesisversion{3.3.5}
-\ProvidesClass{ustcthesis}[2024/05/09 v\ustcthesisversion\space USTC thesis template]
+\newcommand\ustcthesisversion{4.0.0-beta.6}
+\ProvidesClass{ustcthesis}[2025/02/25 v\ustcthesisversion\space USTC thesis template]
 
 % 报错和警告
 \newcommand\ustc@error[1]{%
@@ -20,6 +20,10 @@
 }
 \newcommand\ustc@warning[1]{%
   \ClassWarning{ustcthesis}{#1}%
+}
+
+\newcommand\ustc@deprecated[3]{%
+  \ustc@warning{The #1 is deprecated since #2. Use #3 instead.}%
 }
 
 % 检查 \LaTeXe{} kernel 版本
@@ -424,6 +428,7 @@
 \RequirePackage{color}
 \RequirePackage{titletoc}
 \RequirePackage{caption}
+\RequirePackage{enumitem}
 \RequirePackage[perpage]{footmisc}
 \RequirePackage{url}
 \RequirePackage{notoccite}
@@ -563,26 +568,28 @@
   \ifustc@main@language@chinese
     \def\contentsname{目录}%
     \def\listfigurename{插图清单}%
-    \def\listtablename{表格清单}%
+    \def\listtablename{附表清单}%
+    \def\ustc@list@figure@table@name{插图和附表清单}%
     \ctexset{
       chapter/name   = {第,章},
     }%
     \def\bibname{参考文献}%
     \def\appendixname{附录}%
     \def\ustc@acknowledgements@name{致谢}%
-    \def\ustc@publication@name{在读期间发表的学术论文与取得的研究成果}%
+    \def\ustc@achievements@name{在读期间取得的科研成果}%
     \newcommand\ustc@notation@name{符号说明}%
   \else
     \def\contentsname{Contents}%
     \def\listfigurename{List of Figures}%
     \def\listtablename{List of Tables}%
+    \def\ustc@list@figure@table@name{List of Figures and Tables}%
     \ctexset{
       chapter/name   = {\chaptername\space},
     }%
     \def\bibname{Bibliography}%
     \def\appendixname{Appendix}%
     \def\ustc@acknowledgements@name{Acknowledgements}%
-    \def\ustc@publication@name{Publications}%
+    \def\ustc@achievements@name{Research Achievements}%
     \def\ustc@notation@name{Notation}%
   \fi
 }
@@ -637,7 +644,7 @@
     \renewcommand\normalsize{%
       \@setfontsize\normalsize{12bp}{20bp}%
       \abovedisplayskip 12bp \@plus3bp \@minus7bp%
-      \abovedisplayshortskip \z@ \@plus3bp%
+      \abovedisplayshortskip 0bp \@plus3bp%
       \belowdisplayshortskip 6.5bp \@plus3.5bp \@minus3bp%
       \belowdisplayskip \abovedisplayskip
       \let\@listi\@listI}%
@@ -647,7 +654,7 @@
     \renewcommand\normalsize{%
       \@setfontsize\normalsize{12bp}{22bp}%
       \abovedisplayskip 12bp \@plus3bp \@minus7bp%
-      \abovedisplayshortskip \z@ \@plus3bp%
+      \abovedisplayshortskip 0bp \@plus3bp%
       \belowdisplayshortskip 6.5bp \@plus3.5bp \@minus3bp%
       \belowdisplayskip \abovedisplayskip
       \let\@listi\@listI}%
@@ -1531,17 +1538,17 @@
 
 % 纸张：A4；
 
-% 页面设置：上、下 2.54 cm，左、右 3.17 cm，页眉 1.5 cm，页脚 1.75 cm。
-
-% 注意这里指的是页眉顶部到纸张顶部的距离为 1.5 cm，
-% 所以应该是 2.54cm - 0.8cm - 0.24cm = 1.5cm
-
+% 纸张大小：标准A4（21.0cm×29.7cm）尺寸。
+% 页边距：上、下、左、右、装订线的页边距分别为：2.54cm，2.54cm，3.17cm，3.17cm，0cm。装订线位置：左。左右对称页边距。
+% 页眉距边界2.0cm
+% 页脚距边界1.75cm
+% Word 模板中，页眉线是跟版心上边缘重合的，所以 headsep 设为 1pt，防止页眉线与版心内容重叠（#413）。
 \geometry{
   paper      = a4paper,
   vmargin    = 2.54cm,
   hmargin    = 3.17cm,
-  headheight = 0.75cm,
-  headsep    = 0.29cm,
+  headheight = 0.54cm,
+  headsep    = 1pt,
   footskip   = 0.79cm,
 }
 
@@ -1563,7 +1570,7 @@
     \fancyfoot[C]{\ustc@hf@font\thepage}%
     \let\@mkboth\markboth
     \def\chaptermark##1{%
-      \markboth{\CTEXifname{\CTEXthechapter\quad}{}\ustc@spacetitle{##1}}{}%
+      \markboth{\CTEXifname{\CTEXthechapter\quad}{}##1}{}%
     }%
     \let\sectionmark\@gobble
   \else
@@ -1581,20 +1588,33 @@
 }
 \pagestyle{plain}
 
-% |headings| 只有页眉，没有页脚，用于研究生的符号说明和本科生的 front matter。
+% |headings| 只有页眉，没有页脚，用于本科生的 front matter。
 \fancypagestyle{headings}{\fancyfoot{}}
 
 % 设置特殊的 page style 不改变任何内容，用于每章首页。
 \def\ps@chapter{}
 \ctexset{chapter/pagestyle=chapter}
 
-% 空白页不加页眉和页码。
+% 空白页不需加页眉（包括页眉线），但需有连续编的页码。
+\fancypagestyle{blank}{%
+  \fancyhf{}%
+  \renewcommand\headrulewidth{0pt}%
+  \fancyfoot[C]{\ustc@hf@font\thepage}%
+}
+
+\newif\ifustc@title@page
+
 \def\cleardoublepage{%
   \clearpage
   \if@twoside
     \ifodd\c@page\else
       \hbox{}%
-      \thispagestyle{empty}%
+      \ifustc@title@page
+        % 封面的空白页不显示页码
+        \thispagestyle{empty}%
+      \else
+        \thispagestyle{blank}%
+      \fi
       \newpage
       \if@twocolumn
         \hbox{}%
@@ -1666,12 +1686,19 @@
     default = {Supervisor Name},
     name    = supervisor@en,
   },
-  advisor = {
+  practice-supervisor = {
     default = {},
+    name    = practice@supervisor,
+  },
+  practice-supervisor* = {
+    default = {},
+    name    = practice@supervisor@en,
+  },
+  advisor = {
+    name    = practice@supervisor,
   },
   advisor* = {
-    default = {},
-    name    = advisor@en,
+    name    = practice@supervisor@en,
   },
   date = {
     default = {\the\year-\two@digits{\month}-\two@digits{\day}},
@@ -1713,8 +1740,8 @@
 \newcommand\ustc@supervisor@names{%
   \ustc@clist@use{\ustc@supervisor}{\quad}
 }
-\newcommand\ustc@advisor@names{%
-  \ustc@clist@use{\ustc@advisor}{\quad}
+\newcommand\ustc@practice@supervisor@names{%
+  \ustc@clist@use{\ustc@practice@supervisor}{\quad}
 }
 \newcounter{ustc@count}
 \newcommand\ustc@supervisor@en@line{%
@@ -1726,14 +1753,14 @@
   \fi
   \space\ustc@clist@use{\ustc@supervisor@en}{, }%
 }
-\newcommand\ustc@advisor@en@line{%
-  \setcounter{ustc@count}{\ustc@clist@count{\ustc@advisor@en}}%
+\newcommand\ustc@practice@supervisor@en@line{%
+  \setcounter{ustc@count}{\ustc@clist@count{\ustc@practice@supervisor@en}}%
   \ifnum\c@ustc@count>1\relax
-    Advisor:%
+    Practice supervisor:%
   \else
-    Advisor:%
+    Practice supervisor:%
   \fi
-  \space\ustc@clist@use{\ustc@advisor@en}{, }%
+  \space\ustc@clist@use{\ustc@practice@supervisor@en}{, }%
 }
 
 % 输出日期的给定格式：\cs{ustc@format@date}\marg{format}\marg{date}，
@@ -1766,6 +1793,7 @@
 % Reserved for compatibility until 2020-07-01.
 \def\ustc@define@term#1#2{%
   \expandafter\gdef\csname #1\endcsname##1{%
+    \ustc@deprecated{'\expandafter\protect\csname #1\endcsname' command}{2020-07-01}{'\protect\ustcsetup'}%
     \ustcsetup{#2 = {##1}}%
   }%
 }
@@ -1807,7 +1835,6 @@
   \fi
 \fi
 \ifustc@degree@type@academic
-  \newcommand\ustc@speciality@name{学科专业}
 \else
   \ifustc@degree@doctor
     \renewcommand\ustc@thesis@name{工程博士学位论文}
@@ -1825,7 +1852,6 @@
       \providecommand\lishu{\sffamily}
     \fi
   \fi
-  \newcommand\ustc@speciality@name{专业领域}
 \fi
 
 % 定义校徽颜色
@@ -1858,7 +1884,6 @@
 % 作者姓名宋体 16 磅，单倍行距；
 % 注意这里的“单倍行距”的地方开启了“对齐到网格”，所以实际行距有所偏差，
 % 所以只能使用直尺测量。
-\newcommand\ustc@speciality@sse{软件工程}
 \newcommand\ustc@title@page@graduate@zh{%
   \ustcsetup{language=chinese}%
   \begin{titlepage}%
@@ -1899,14 +1924,14 @@
       \ustc@title\par}\par
     \vskip 0.6cm%
     {\fontsize{16bp}{31bp}\selectfont
-      \begin{tabular}{@{}l@{\hspace{\ccwd}}l@{}}%
+      \begin{tabular}{@{}l@{\quad}l@{}}%
         \textsf{作者姓名：} & \ustc@author \\
-        \textsf{\ustc@speciality@name：} & \ustc@speciality \\
-        \ifx\ustc@advisor\@empty
+        \textsf{学科专业：} & \ustc@speciality \\
+        \ifx\ustc@practice@supervisor\@empty
           \textsf{导\hspace{2em}师：} & \ustc@supervisor@names \\
         \else
           \textsf{校内导师：} & \ustc@supervisor@names \\
-          \textsf{企业导师：} & \ustc@advisor@names \\
+          \textsf{实践导师：} & \ustc@practice@supervisor@names \\
         \fi
         \textsf{完成时间：} & \ustc@date@zh@big
       \end{tabular}\par}%
@@ -1924,9 +1949,9 @@
       \raggedleft\fontsize{14bp}{14bp}\selectfont
       \null\ustc@secret@level@en\par}\par
     \vskip 0.5cm%
-    {\sffamily\fontsize{20bp}{30bp}\selectfont
-      University of Science and Technology of China\par}%
-    {\sffamily\fontsize{26bp}{30bp}\selectfont
+    {\fontsize{20bp}{30bp}\selectfont
+      University of Science and Technology of China\par\null\par}%
+    {\fontsize{26bp}{30bp}\selectfont
       \ustc@thesis@name@en\par}%
     \ifustc@degree@type@academic\else
       \begingroup
@@ -1947,7 +1972,7 @@
       \includegraphics[height=4.5cm]{figures/ustc-badge.pdf}%
     \fi\par
     \vskip 0.5cm%
-    \parbox[t][4.5cm][c]{\textwidth}{%
+    \parbox[t][2.5cm][c]{\textwidth}{%
       \centering\sffamily\bfseries\fontsize{26bp}{30bp}\selectfont
       \ustc@title@en\par}\par
     \vskip 1.6cm%
@@ -1956,11 +1981,11 @@
         Author:        \ustc@author@en \\
         Speciality:    \ustc@speciality@en \\
         \ustc@supervisor@en@line \\
-        \ifx\ustc@advisor\@empty
+        \ifx\ustc@practice@supervisor@en\@empty
         \else
-          \ustc@advisor@en@line \\
+          \ustc@practice@supervisor@en@line \\
         \fi
-        Finished time: \ustc@date@en
+        Completion date: \ustc@date@en
       \end{tabular}\par}%
   \end{titlepage}%
   \ustc@reset@main@language
@@ -1978,7 +2003,7 @@
     \vskip 4.3cm%
     \begingroup
       \bfseries\fontsize{15bp}{16bp}\selectfont
-      \setlength\tabcolsep{\z@}%
+      \setlength\tabcolsep{0bp}%
       \setlength\arrayrulewidth{1.5pt}%
       \begin{tabular}{lp{140bp}lp{140bp}}%
         题\quad 目 &
@@ -2093,6 +2118,7 @@
   \newgeometry{margin=2.54cm}%
   \pagenumbering{Alph}%
   \pagestyle{empty}%
+  \ustc@title@pagetrue
   \ifustc@degree@graduate
     \ustc@title@page@graduate@zh
     \ustc@title@page@graduate@en
@@ -2102,6 +2128,7 @@
   \cleardoublepage
   \restoregeometry
   \pagestyle{plain}%
+  \ustc@title@pagefalse
 }
 
 
@@ -2126,7 +2153,7 @@
 \newcommand\ustc@underline[2][3.2cm]{\underline{\hb@xt@ #1{\hss#2\hss}}}
 
 \newcommand\ustc@checkbox{%
-  \makebox[\z@][l]{$\square$}%
+  \makebox[0bp][l]{$\square$}%
   \raisebox{-0.2ex}{\hspace{0.1em}$\checkmark$}%
 }
 
@@ -2168,12 +2195,18 @@
       评审专家签名：\ustc@underline{}\par
     \fi
   \end{titlepage}%
+  \ustc@title@pagetrue
+  \cleardoublepage
+  \ustc@title@pagefalse
 }
 \ifustc@degree@bachelor
   \let\copyrightpage\relax
 \fi
 % Reserved for compatibility until 2020-07-01.
-\let\makestatement\copyrightpage
+\newcommand\makestatement{%
+  \ustc@deprecated{'\protect\makestatement' command}{2020-07-01}{'\protect\copyrightpage'}%
+  \copyrightpage
+}
 
 
 % \subsection{章节标题}
@@ -2181,30 +2214,19 @@
 % 标题最多允许使用五级。
 \setcounter{secnumdepth}{5}
 
-% 研究生规定章题为两字时中间空两字，三字时空一字，四字时空半字，四字以上不空。
+% 本科生章题为两字时中间空一字，三字时空半字，四字及以上不空。
 % 这里用 \LaTeX3 的 \cs{\str_count:N} 判断字数。
 % 注意，\pkg{stringstrings} 宏包会导致范数命令 \verb+\|+ 被修改。
 \newcount\ustc@titlelength
-\DeclareRobustCommand\ustc@spacetitle[1]{%
+\DeclareRobustCommand\ustc@spaced@title[1]{%
   \ustc@titlelength=\csname str_count:N\endcsname{#1}%
   \begingroup
-    \ifustc@degree@graduate
+    \if@mainmatter\else
       \ifcase\ustc@titlelength
       \or\or
-        \ziju{2}%
-      \or
         \ziju{1}%
-      \or
+      \or\or
         \ziju{0.5}%
-      \fi
-    \else
-      \if@mainmatter\else
-        \ifcase\ustc@titlelength
-        \or\or
-          \ziju{1}%
-        \or\or
-          \ziju{0.5}%
-        \fi
       \fi
     \fi
     #1%
@@ -2222,55 +2244,54 @@
 
 % 用 \pkg{ctex} 的接口设置全部章节标题格式。
 
-% 各章标题：黑体 16 磅加粗居中，单倍行距，段前 24 磅，段后 18 磅，
-% 章序号与章名间空一字。
-
-% 由于 Word 模板中使用“单倍行距”，还“对齐到网格”，这在 TeX 中不容易实现。
-% 所以目前按照默认的行距。
+% 各章标题，例如：“第1章  引言”。
+% 章序号采用阿拉伯数字，章序号与标题之间空一个汉字符，采用黑体三号字，居中书写，单倍行距，段前24磅，段后18磅。
+% 摘要、目录和列于目录中与章平级的其它部分的标题（如参考文献、附录、致谢等）也用这同一种格式。
 
 % 注意 \pkg{ctex} v2.4.3 以下版本的bug会导致章节标题前后的距离的实际值偏大。
 % 另外 \pkg{ctex} v2.2 前的beforeskip的符号有特殊意义。
 \ctexset{
   chapter = {
-    format      = \centering\heiti\bfseries\fontsize{16bp}{26.67bp}\selectfont,
+    format      = \centering\heiti\fontsize{16bp}{20.8bp}\selectfont,
     nameformat  = {},
-    titleformat = \ustc@spacetitle,
+    titleformat = {},
     number      = \thechapter,
-    aftername   = \hspace{\ccwd},
+    aftername   = \quad,
     beforeskip  = 24bp,
     afterskip   = 18bp,
     fixskip     = true,
   },
 }
 
-% 一级节标题：黑体 14 磅左顶格，单倍行距，段前 24 磅，段后 6 磅，
-% 序号与题名间空一字。
+% 一级节标题，例如：“2.1  实验方法”。
+% 节编号用阿拉伯数字表示，前边数字为上级章节的序号，后一数字为本节的顺序号。
+% 数字间用半角小数点“.”连接。
+% 节标题序号与标题名之间空一个汉字符（下同）。
+% 采用黑体四号（14pt）字居左书写，固定行距20磅，段前24磅，段后6磅。
 \ctexset{
   section = {
-    format     = \heiti\fontsize{14bp}{23.33bp}\selectfont,
-    aftername  = \hspace{\ccwd},
+    format     = \heiti\fontsize{14bp}{20bp}\selectfont,
+    aftername  = \quad,
     beforeskip = 24bp,
     afterskip  = 6bp,
   },
   %
-  % 二级节标题：黑体 13 磅，左缩进两字，单倍行距，段前 12 磅，段后 6 磅，
-  % 序号与题名间空一字。
+  % 二级节标题，例如：“2.1.1  实验装置”。
+  % 采用黑体13pt字居左书写，固定行距20磅，段前12磅，段后6磅。
   subsection = {
-    format     = \heiti\fontsize{13bp}{21.67bp}\selectfont,
-    aftername  = \hspace{\ccwd},
+    format     = \heiti\fontsize{13bp}{20bp}\selectfont,
+    aftername  = \quad,
     beforeskip = 12bp,
     afterskip  = 6bp,
   },
   %
-  % 三级及以下节标题的格式没有具体规定，按照 Word 模板的格式：
-  % 使用黑体 12 磅，左缩进两字，行距 20 磅，段前段后 0 磅，序号与题名间空半字宽。
+  % 三级节标题，例如：“2.1.1.1  实验结果”。
+  % 采用黑体小四号（12pt）字居左书写，固定行距20磅，段前12磅，段后6磅。
   subsubsection = {
     format     = \heiti\fontsize{12bp}{20bp}\selectfont,
-    number     = \arabic{subsubsection},
-    aftername  = .\hspace{0.5\ccwd},
-    indent     = 2\ccwd,
-    beforeskip = \z@,
-    afterskip  = \z@,
+    aftername  = \quad,
+    beforeskip = 12bp,
+    afterskip  = 6bp,
   },
   %
   % 按照 Word 模板的格式，四级节标题：宋体 12 磅，左缩进两字，行距 20 磅，
@@ -2278,10 +2299,10 @@
   paragraph = {
     format     = \rmfamily\fontsize{12bp}{20bp}\selectfont,
     number     = （\arabic{paragraph}）,
-    aftername  = \hspace{0.5\ccwd},
-    indent     = 2\ccwd,
-    beforeskip = \z@,
-    afterskip  = \z@,
+    aftername  = \hspace{0.5em},
+    indent     = 2em,
+    beforeskip = 0bp,
+    afterskip  = 0bp,
     runin      = false,
   },
   %
@@ -2290,10 +2311,10 @@
   subparagraph = {
     format     = \rmfamily\fontsize{12bp}{20bp}\selectfont,
     number     = \ustc@textcircled{subparagraph},
-    aftername  = \hspace{0.5\ccwd},
-    indent     = 2\ccwd,
-    beforeskip = \z@,
-    afterskip  = \z@,
+    aftername  = \hspace{0.5em},
+    indent     = 2em,
+    beforeskip = 0bp,
+    afterskip  = 0bp,
     runin      = false,
   },
 }
@@ -2329,22 +2350,25 @@
           \fontsize{18bp}{33bp}\selectfont
         \fi
       },
+      titleformat = \ustc@spaced@title,
     },
     section = {
       format = \centering\sffamily\fontsize{15bp}{27.5bp}\selectfont,
     },
     subsection = {
       format    = \sffamily\fontsize{14bp}{25.67bp}\selectfont,
-      indent    = \z@,
+      indent    = 0bp,
     },
     subsubsection = {
       format    = \rmfamily\fontsize{12bp}{22bp}\selectfont,
-      indent    = \ccwd,
+      number    = \arabic{subsubsection},
+      aftername = .\hspace{0.5em},
+      indent    = 1em,
     },
     paragraph = {
       format    = \rmfamily\fontsize{12bp}{22bp}\selectfont,
       aftername = {},
-      indent    = \ccwd,
+      indent    = 1em,
     },
   }
   %
@@ -2387,11 +2411,7 @@
 
 % 中文摘要环境。
 \newcommand\ustc@keywords@text{%
-  \ifustc@degree@graduate
-    \ustc@clist@use{\ustc@keywords}{\quad}%
-  \else
-    \ustc@clist@use{\ustc@keywords}{；}%
-  \fi
+  \ustc@clist@use{\ustc@keywords}{；}%
 }
 \newcommand\ustc@keywords@en@text{%
   \ifustc@degree@graduate
@@ -2404,7 +2424,7 @@
   \ustcsetup{language=chinese}%
   \ustc@chapter{摘要}%
 }{
-  \par\null\par\noindent\hangindent=4\ccwd\relax
+  \par\null\par\noindent\hangindent=4em\relax
   \textbf{关键词}：\ustc@keywords@text\par
   \ustc@reset@main@language
 }
@@ -2413,10 +2433,15 @@
 \newlength\ustc@keywords@width
 
 % 英文摘要环境
+\newcommand\ustc@keywords@label{KEY WORDS}%
+
 \newenvironment{abstract*}{%
   \ustcsetup{language=english}%
   \ifustc@degree@graduate
-    \ustc@chapter[Abstract]{ABSTRACT}%
+    \ctexset{
+      chapter/format = \centering\bfseries\fontsize{16bp}{26.67bp}\selectfont,
+    }%
+    \ustc@chapter{ABSTRACT}%
   \else
     \begingroup
       % 本科生的英文摘要使用小二号衬线体
@@ -2426,10 +2451,13 @@
   \fi
 }{
   \par\null\par\noindent
-  \savebox\ustc@keywords@box{\textbf{Key Words}: }%
+  \ifustc@degree@bachelor
+    \renewcommand\ustc@keywords@label{Key Words}%
+  \fi
+  \savebox\ustc@keywords@box{\textbf{\ustc@keywords@label}: }%
   \ustc@keywords@width=\linewidth
   \advance\ustc@keywords@width-\wd\ustc@keywords@box
-  \textbf{Key Words}: \parbox[t]{\ustc@keywords@width}{\ustc@keywords@en@text\par}\par
+  \textbf{\ustc@keywords@label}: \parbox[t]{\ustc@keywords@width}{\ustc@keywords@en@text\par}\par
   \ifustc@degree@graduate
     \cleardoublepage
   \fi
@@ -2438,6 +2466,7 @@
 
 % Reserved for compatibility until 2020-07-01.
 \newenvironment{enabstract}{%
+  \ustc@deprecated{'enabsctract' environment}{2020-07-01}{'abstract*'}%
   \begin{abstract*}%
 }{%
   \end{abstract*}%
@@ -2462,51 +2491,45 @@
 % 先定义目录线：
 \newcommand\ustc@leaders{%
   \hspace{2bp}%
-  \titlerule*[4bp]{\textperiodcentered}%
+  \titlerule*[4bp]{.}%
   \hspace{2bp}%
 }
 
 \contentsmargin{0bp}
 
-% 各章目录要求宋体 14 磅，单倍行距，段前 6 磅，段后 0 磅，两端对齐，
-% 页码右对齐，章序号与章名间空一字。
-% 但是 Word 模板中实际是行距 20 磅。
+% 目录中的章标题行采用黑体小四号字，固定行距 20 磅，段前 6 磅，段后 0 磅；
+% 其他内容采用宋体小四号字，行距 20 磅，段前、段后均为 0 磅。
+% 章标题行居左书写，一级节标题行缩进 1 个汉字符，二级节标题行缩进 2 个汉字符。
+% 带有序号的各级标题，其序号与题名之间均空一字符，行末右顶格。
 \ifustc@degree@graduate
   \titlecontents{chapter}
-    [\z@]{\addvspace{6bp}\fontsize{14bp}{20bp}\selectfont}
+    [0bp]{\addvspace{6bp}\heiti\normalsize}
     {\contentspush{\thecontentslabel\hspace{\ccwd}}}{}
-    {\fontsize{12bp}{20bp}\selectfont\ustc@leaders\thecontentspage}
+    {\bfseries\normalsize\ustc@leaders\thecontentspage}
     %
-    % 一级节标题目录要求宋体 12 磅，单倍行距，左缩进一字，段前 6 磅，段后 0 磅，
-    % 两端对齐，页码右对齐，序号与题名间空一字。
-    % Word 模板中实际是行距 20 磅，段前 0 磅。
   \titlecontents{section}
-    [\ccwd]{\fontsize{12bp}{20bp}\selectfont}
-    {\contentspush{\thecontentslabel\hspace{\ccwd}}}{}
+    [1em]{\normalsize}
+    {\contentspush{\thecontentslabel\quad}}{}
     {\ustc@leaders\thecontentspage}
     %
-    % 二级节标题目录要求仿宋 12 磅，单倍行距，左缩进两字，段前 6 磅，段后 0 磅，
-    % 两端对齐，页码右对齐，序号与题名间空一字。
-    % Word 模板中实际是行距 20 磅，段前 0 磅。
   \titlecontents{subsection}
-    [2\ccwd]{\fangsong\fontsize{12bp}{20bp}\selectfont}
-    {\contentspush{\thecontentslabel\hspace{\ccwd}}}{}
+    [2em]{\normalsize}
+    {\contentspush{\thecontentslabel\quad}}{}
     {\ustc@leaders\thecontentspage}
-    %
-    % 本科生的目录使用小四宋体（同正文字体），其他同研究生的格式相近。
 \else
+  % 本科生的目录使用小四宋体（同正文字体），其他同研究生的格式相近。
   \titlecontents{chapter}
-    [\z@]{\normalsize}
-    {\contentspush{\thecontentslabel\unskip\hspace{\ccwd}}}{}
+    [0bp]{\normalsize}
+    {\contentspush{\thecontentslabel\unskip\quad}}{}
     {\ustc@leaders\thecontentspage}
   \titlecontents{section}
-    [\ccwd]{\normalsize}
-    {\contentspush{\thecontentslabel\hspace{\ccwd}}}{}
+    [1em]{\normalsize}
+    {\contentspush{\thecontentslabel\quad}}{}
     {\ustc@leaders\thecontentspage}
   \titlecontents{subsection}
-    [2\ccwd]{\normalsize}
+    [2em]{\normalsize}
     {\contentspush{\thecontentslabel
-      \ifustc@section@style@arabic\hspace{\ccwd}\else 、\fi}}{}
+      \ifustc@section@style@arabic\quad\else 、\fi}}{}
     {\ustc@leaders\thecontentspage}
 \fi
 
@@ -2566,15 +2589,22 @@
   \@starttoc{lot}%
 }
 
+\newcommand\listoffiguresandtables{%
+  \ifustc@degree@graduate
+    \cleardoublepage
+  \fi
+  \ustc@chapter{\ustc@list@figure@table@name}%
+  \@starttoc{lof}%
+  \@starttoc{lot}%
+}
+
 
 % \subsection{符号说明}
 
 % 研究生规定符号说明另页起，标题字体字号等同论文正文，
-% 《撰写手册》第 9 页 1.10(2) 还规定“符号说明不加页码”。
 \newenvironment{notation}{%
   \ifustc@degree@graduate
     \cleardoublepage
-    \pagestyle{headings}%
   \fi
   \ustc@chapter{\ustc@notation@name}%
 }{%
@@ -2610,7 +2640,7 @@
 \raggedbottom
 
 % 段间距 0 磅。
-\setlength{\parskip}{\z@}
+\setlength{\parskip}{0bp}
 
 % 首段缩进。
 \ctexset{autoindent=2}
@@ -2649,16 +2679,16 @@
   %
   % 注文缩进两字：
 \renewcommand\@makefntext[1]{%
-  \parindent 2\ccwd\relax
+  \parindent=2em\relax
   \noindent
-  \hb@xt@2\ccwd{\hss\@makefnmark}#1}
+  \hb@xt@ 2em{\hss\@makefnmark}#1}
 
 
 % \subsection{列表}
 % \label{sec:list}
 
 % 调整列表中各项之间过大的间距。
-\setlength\partopsep{\z@}
+\setlength\partopsep{0bp}
 \newcommand\ustc@nolistsep{%
   \parsep 0\p@ \@plus.2\p@
   \topsep 0\p@ \@plus.2\p@
@@ -2680,6 +2710,129 @@
 
 % \subsection{浮动体}
 
+% 图题采用宋体，加粗，字号 11pt，居中书写，单倍行距，段前6磅，段后0磅，
+% 图序与图名之间空一个汉字符，
+
+% 表题置于表的上方，采用宋体，加粗，字号11pt，居中书写，单倍行距，段前6磅，段后0磅。
+% 表序与表名之间空一个汉字符。
+
+% 本科生：图全文要分别统一编号或按章编号，标题用小四宋体:
+
+% 使用 \pkg{caption} 宏包设置图、表的格式：
+\DeclareCaptionFont{ustc}{\ustc@caption@font}
+\newcommand\ustc@caption@font{%
+  \ifustc@degree@bachelor
+    \fontsize{12bp}{14.4bp}\selectfont
+  \else
+    \ifustc@language@chinese
+      \fontsize{11bp}{14.3bp}\selectfont
+    \else
+      \fontsize{11bp}{12.65bp}\selectfont
+    \fi
+  \fi
+}
+
+\captionsetup{
+  font           = ustc,
+  labelsep       = quad,
+  skip           = 6bp,
+  figureposition = bottom,
+  tableposition  = top,
+}
+\ifustc@degree@graduate
+  \captionsetup{font+=bf}
+\fi
+
+% 表单元格中的文字采用 11pt 宋体字，单倍行距，段前3磅，段后3磅。
+% 对于中文，`\arraystretch` 需要设为 1 + (3pt + 3pt) / (11pt * 1.3) ~= 1.42。
+% 对于英文，`\arraystretch` 需要设为 1 + (3pt + 3pt) / (11pt * 1.15) ~= 1.47。
+%
+% 本科生：表格内容用小四宋体或五号宋体选定某种样式后，全文应统一。
+\newcommand\ustc@table@font{%
+  \ifustc@degree@bachelor
+    \ifustc@language@chinese
+      \fontsize{10.5bp}{13.65bp}\selectfont
+      \renewcommand\arraystretch{1.44}%
+    \else
+      \fontsize{10.5bp}{12.075bp}\selectfont
+      \renewcommand\arraystretch{1.5}%
+    \fi
+  \else
+    \ifustc@language@chinese
+      \fontsize{11bp}{14.3bp}\selectfont
+      \renewcommand\arraystretch{1.42}%
+    \else
+      \fontsize{11bp}{12.65bp}\selectfont
+      \renewcommand\arraystretch{1.47}%
+    \fi
+  \fi
+}
+
+\patchcmd\@floatboxreset{%
+  \normalsize
+}{%
+  \ustc@table@font
+}{}{\ustc@patch@error{\@floatboxreset}}
+
+% 对 \pkg{longtable} 跨页表格进行相同的设置。
+\AtEndOfPackageFile*{longtable}{
+  \AtBeginEnvironment{longtable}{%
+    \ifdim\f@size pt > 11bp\relax
+      \ustc@table@font
+    \fi
+  }
+}
+
+% 图注、表注使用 `\figurenote` 或 `\tablenote` 命令，与 `apa7.cls` 一致。
+% 图注采用宋体 11pt，单倍行距，段前6磅，段后0磅。
+% 多个图注则须顺序编号，注序左缩进2字，与注文之间空一字符，续行悬挂缩进左对齐，两端对齐。
+\newcommand\ustc@figure@note@font{%
+  \ifustc@degree@bachelor
+    \ifustc@language@chinese
+      \fontsize{10.5bp}{13.65bp}\selectfont
+    \else
+      \fontsize{10.5bp}{12.075bp}\selectfont
+    \fi
+  \else
+    \ustc@caption@font
+  \fi
+}
+\newcommand\figurenote[1]{%
+  \par
+  \begingroup
+    \setlength\parskip{6bp}%
+    \ustc@figure@note@font
+    % 参考 `\@makecaption` 的实现
+    \sbox\@tempboxa{#1}%
+    \ifdim \wd\@tempboxa >\hsize
+      \parbox{\linewidth}{#1\par}%
+    \else
+      \global \@minipagefalse
+      \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+    \par
+  \endgroup
+}
+\let\tablenote\figurenote
+
+\newcommand\note[1]{%
+  \ustc@deprecated{'\protect\note' command}{2025-01-05}{'\protect\figurenote'}%
+  \figurenote{#1}%
+}
+
+% 设置 \pkg{threeparttable} 表注的默认字号。
+\AtEndOfPackageFile*{threeparttable}{
+  \AtBeginEnvironment{tablenotes}{%
+    \ustc@figure@note@font
+  }
+}
+
+% 不宜将多个插图连续排版，插图与文字论述段落应穿插排版。
+
+% 修改默认的浮动体描述符为 |h|。
+\def\fps@figure{h}
+\def\fps@table{h}
+
 % \LaTeX{} 对放置浮动体的要求比较强，这里按照 UK TeX FAQ 的建议
 % \footnote{\url{https://texfaq.org/FAQ-floats}} 对其适当放宽。
 \renewcommand\topfraction{.85}
@@ -2693,45 +2846,11 @@
 \setcounter{totalnumber}{20}
 \setcounter{dbltopnumber}{9}
 
-% 修改默认的浮动体描述符为 |h|。
-\def\fps@figure{h}
-\def\fps@table{h}
-
-% 用 \pkg{caption} 宏包设置图、表的格式：
-
-% 图号、图题置于图的下方，宋体 10.5 磅居中，单倍行距，段前 6 磅，段后 12 磅，
-% 图号与图题文字之间空一字，图号、图题加粗。
-% 图注位于图的下方，左缩进两字，续行悬挂缩进左对齐，两端对齐。
-
-% 表号、表题置于表的上方，黑体 10.5 磅居中，单倍行距，段前 6 磅，段后 6 磅，
-% 表号与表题文字之间空一字，表号、表题加粗。
-% 表注左缩进两字，续行悬挂缩进左对齐，两端对齐。
-\setlength{\floatsep}{6bp}
-\setlength{\textfloatsep}{6bp}
-\setlength{\intextsep}{6bp}
-
-\DeclareCaptionFont{ustc}{%
-  \ifustc@language@chinese
-    \fontsize{10.5bp}{13.65bp}\selectfont
-  \else
-    \fontsize{10.5bp}{12.075bp}\selectfont
-  \fi
-}
-
-\captionsetup{
-  font           = ustc,
-  labelsep       = quad,
-  skip           = 6bp,
-  figureposition = bottom,
-  tableposition  = top,
-}
-\ifustc@degree@graduate
-  \captionsetup{font+=bf}
-  \captionsetup[table]{font+=sf}
-\fi
-\captionsetup[figure]{
-  belowskip = 6bp,
-}
+% 插图前后与文字段落之间须留有10磅空行。
+% 插图如果不得不与其它插图或表格连续排版，则它们之间须留有20磅空行。
+\setlength{\floatsep}{20bp}
+\setlength{\textfloatsep}{10bp}
+\setlength{\intextsep}{10bp}
 
 % 由于 LaTeX2e kernel 的问题，图表等浮动体与文字前后的距离不一致，需要进行 patch。
 % 参考 \href{https://github.com/tuna/thuthesis/issues/614}{tuna/thuthesis/issues\#614}、
@@ -2764,41 +2883,6 @@
   {}{\ustc@patch@error{\@addtocurcol}}
 \patchcmd{\@getpen}{\@M}{\@Mi}
   {}{\ustc@patch@error{\@getpen}}
-
-% 新定义了 \cs{note} 来生成图表的附注。
-% 如果用 \cs{caption} 生成图表的附注会导致图表的序号有误；
-% 如果用 \cs{bicaption} 会导致表注无法置于表后，而且对齐方式不对。
-\newcommand\note[1]{%
-  \begingroup
-    \captionsetup{
-      font          = ustc,
-      margin        = 2\ccwd,
-      position      = bottom,
-    }%
-    \caption*{#1}%
-  \endgroup
-}
-
-% 表格默认字号略小
-\patchcmd\@floatboxreset{%
-  \normalsize
-}{%
-  \small
-}{}{\ustc@patch@error{\@floatboxreset}}
-
-% 对 \pkg{longtable} 跨页表格进行相同的设置。
-%
-% 在 Word 模板中按照正确的设置（需要去掉文档网格），
-% 中文模板每页能装下 1 行标题、1 行表头、30 行表身，
-% 英文模板每页能装下 1 行标题、1 行表头、33 行表身。
-%    \begin{macrocode}
-\AtEndOfPackageFile*{longtable}{
-  \AtBeginEnvironment{longtable}{%
-    \ifdim\f@size pt > 12pt\relax
-      \small
-    \fi
-  }
-}
 
 
 % \subsection{参考文献}
@@ -3109,7 +3193,7 @@
   }
   \setlength{\bibsep}{0\p@ \@plus.2\p@}
   \renewcommand\@biblabel[1]{[#1]\hfill}
-  \setlength{\bibhang}{2\ccwd}
+  \setlength{\bibhang}{2em}
 }
 
 
@@ -3129,7 +3213,7 @@
     \fi
   }
   \setlength{\bibitemsep}{0\p@ \@plus.2\p@}
-  \setlength{\bibhang}{2\ccwd}
+  \setlength{\bibhang}{2em}
 }
 
 % \subsection{附录}
@@ -3158,11 +3242,41 @@
   \end{acknowledgements}%
 }
 
-% 发表成果环境：
-\newenvironment{publications}{%
+% 科研成果环境：
+\newenvironment{achievements}{%
   \@mainmatterfalse
-  \chapter{\ustc@publication@name}%
+  \chapter{\ustc@achievements@name}%
 }{}
+
+% 兼容旧的接口
+\newenvironment{publications}{%
+  \ustc@deprecated{'publications' environment}{2024-12-15}{'achievements'}%
+  \@mainmatterfalse
+  \chapter{\ustc@achievements@name}%
+}{}
+
+\newenvironment{theachievements}[1][已发表论文]{%
+  \par\null\par
+  \noindent\textbf{#1：}\par
+  \begin{achievementlist}
+}{%
+  \end{achievementlist}
+}
+
+\newlist{achievementlist}{enumerate}{1}
+\setlist[achievementlist]{
+  topsep     = 0bp,
+  partopsep  = 0bp,
+  itemsep    = 0bp,
+  parsep     = 0bp,
+  leftmargin = 1.5em,
+  itemindent = 1.5em,
+  labelsep   = 0em,
+  labelwidth = 3em,
+  align      = left,
+  label      = （\arabic*）,
+}
+
 
 
 % \subsection{其他宏包的设置}
@@ -3274,9 +3388,9 @@
 \AtEndOfPackageFile*{amsthm}{
   \newtheoremstyle{ustcplain}
     {}{}
-    {}{2\ccwd}
+    {}{2em}
     {\bfseries}{}
-    {\ccwd}{}
+    {1em}{}
   \theoremstyle{ustcplain}
   % 定义新的定理
   \ifustc@language@chinese
@@ -3315,15 +3429,15 @@
   \newtheorem{example}             {\ustc@example@name}    [chapter]
   \newtheorem*{remark}             {\ustc@remark@name}
   % \pkg{amsthm} 单独定义了 proof 环境，这里重新定义以满足格式要求。
-  % 原本模仿 \pkg{amsthm} 写成 |\item[\hskip\labelsep\hskip2\ccwd #1\hskip\ccwd]|，
+  % 原本模仿 \pkg{amsthm} 写成 |\item[\hskip\labelsep\hskip2em #1\hskip1em]|，
   % 但是却会多出一些间隙。
   \renewenvironment{proof}[1][\ustc@proof@name]{\par
     \pushQED{\qed}%
     \normalfont \topsep6\p@\@plus6\p@\relax
     \trivlist
-      \item\relax\hskip2\ccwd
+      \item\relax\hskip2em\relax
       \textbf{#1}
-      \hskip\ccwd\ignorespaces
+      \hskip1em\ignorespaces
     }{%
     \popQED\endtrivlist\@endpefalse
   }
@@ -3350,7 +3464,7 @@
   \ifustc@degree@graduate
     \SetAlCapNameSty{textbf}
   \fi
-  \SetAlgoCaptionSeparator{\unskip\hspace*{\ccwd}}
+  \SetAlgoCaptionSeparator{\unskip\hspace*{1em}}
   %
   % 设置算法清单的格式
   \renewcommand\listofalgocfs{%
