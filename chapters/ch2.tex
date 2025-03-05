@@ -236,7 +236,7 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 \subsection{Kolmogorov-Arnold 网络}
 通用逼近定理\cite{universal_approximation}指出，具有非线性激活函数的单隐层神经网络，通过足够多的隐藏节点，能够在任意精度下逼近定义在闭区间上的连续函数。
 这一理论奠定了深度学习模型的理论基础。
-受通用逼近定理的启发，多层感知机（MLP）\cite{mlp}提出了一种能够逼近任意连续函数的建模方法。
+受通用逼近定理的启发，多层感知机（Multi-Layer Perceptron, MLP）\cite{mlp}提出了一种能够逼近任意连续函数的建模方法。
 
 在此背景下，Kolmogorov–Arnold 网络（KAN）\cite{kan}作为一种基于 Kolmogorov-Arnold 表示定理\cite{kan_theorem}的模型，被认为是MLP的有效替代方案甚至改进版本。
 基于Kolmogorov-Arnold 表示定理，KAN 将传统 MLP 的权重参数替换为可学习的单变量函数，从而实现对复杂函数的显示分解。
