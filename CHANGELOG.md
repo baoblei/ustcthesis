@@ -9,7 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 添加博士学位论文的“创新性说明”的示例（研究生院 2025-02-27 Word 模板，[#423](https://github.com/ustctug/ustcthesis/issues/423)）。
+- 新增 `eqn-paren-style` 控制中文数学公式的编号（`\eqref`）使用全角或半角括号（[#420](https://github.com/ustctug/ustcthesis/issues/420)）。
+- 添加博士学位论文的“创新性说明”环境 `innovations`（研究生院 2025-02-27 Word 模板，[#423](https://github.com/ustctug/ustcthesis/issues/423)）。
+- 添加 `degree-type = engineering` 工程学位类型（[#427](https://github.com/ustctug/ustcthesis/issues/427)）。
+
+### Changed
+
+- 中文数学公式的编号（`\eqref`）默认使用全角括号（[#420](https://github.com/ustctug/ustcthesis/issues/420)）。
+- 封面的横向页边距改为 3.17 cm（[#424](https://github.com/ustctug/ustcthesis/issues/424)）。
+
+### Fixed
+
+- 修正复数 Practice supervisors 的拼写（[#431](https://github.com/ustctug/ustcthesis/pull/431)）。
+- 修正英文摘要的缩进为 1 em（[#434](https://github.com/ustctug/ustcthesis/pull/434)）。
+
+### Removed
+
+- 移除封面的“专业/工程学位类型”（[#427](https://github.com/ustctug/ustcthesis/issues/427#issuecomment-2714402725)）。
 
 ## [4.0.0-beta.6] - 2025-02-25
 

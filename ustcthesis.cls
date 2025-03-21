@@ -174,6 +174,7 @@
     choices = {
       academic,
       professional,
+      engineering,
     },
     default = academic,
   },
@@ -348,6 +349,13 @@
     },
     default = false,
   },
+  eqn-paren-style = {
+    name = eqn@paren@style,
+    choices = {
+      full,
+      half,
+    }
+  },
 }
 
 % 将 \ustc@cite@style 置空方便后续进行判断。
@@ -386,6 +394,7 @@
 \DeclareVoidOption{english}{\ustcsetup{language=english}}
 \DeclareVoidOption{academic}{\ustcsetup{degree-type=academic}}
 \DeclareVoidOption{professional}{\ustcsetup{degree-type=professional}}
+\DeclareVoidOption{engineering}{\ustcsetup{degree-type=engineering}}
 \DeclareVoidOption{print}{\ustcsetup{output=print}}
 \DeclareVoidOption{pdf}{\ustcsetup{output=electronic}}
 \newif\ifustc@legacy@cite@style
@@ -1308,12 +1317,15 @@
   \ustc@set@xits@names
   \setmathfont{\ustc@font@name@xits@math}[
     Extension    = .otf,
+    Scale        = MatchLowercase,
     StylisticSet = \ustc@xits@integral@stylistic@set,
   ]%
-  \setmathfont{\ustc@font@name@xits@math}[
+  % 使用 STIX Two Math 的 `\mathcal` 字形
+  \ustc@set@stix@names
+  \setmathfont{\ustc@font@name@stix@math}[
     Extension    = .otf,
-    StylisticSet = 1,
-    range        = {cal,bfcal},
+    Scale        = MatchLowercase,
+    range        = {cal, bfcal},
   ]%
 }
 
@@ -1556,7 +1568,7 @@
 % \cs{sectionmark}。
 \pagestyle{fancy}
 \let\sectionmark\@gobble
-\renewcommand\headrulewidth{0.4\p@}
+\renewcommand\headrulewidth{0.75bp}
 
 % 重定义默认的 |plain| page style，会显示页眉和页脚。
 \fancypagestyle{plain}{%
@@ -1756,7 +1768,7 @@
 \newcommand\ustc@practice@supervisor@en@line{%
   \setcounter{ustc@count}{\ustc@clist@count{\ustc@practice@supervisor@en}}%
   \ifnum\c@ustc@count>1\relax
-    Practice supervisor:%
+    Practice supervisors:%
   \else
     Practice supervisor:%
   \fi
@@ -1837,21 +1849,37 @@
 \ifustc@degree@type@academic
 \else
   \ifustc@degree@doctor
-    \renewcommand\ustc@thesis@name{工程博士学位论文}
-  \else
-    \renewcommand\ustc@thesis@name{专业硕士学位论文}
-  \fi
-  \ifustc@cjk@font@mac
-    \providecommand\lishu{\CJKfamily{zhli}}
-  \else
-    \ifustc@cjk@font@windows
-      \setCJKfamilyfont{zhli}{LiSu}
-      \providecommand\lishu{\CJKfamily{zhli}}
+    \ifustc@degree@type@professional
+      \renewcommand\ustc@thesis@name{专业博士学位论文}
     \else
-      \ustc@warning{LiShu font is required}
-      \providecommand\lishu{\sffamily}
+      \ifustc@degree@type@engineering
+        \renewcommand\ustc@thesis@name{工程博士学位论文}
+      \fi
+    \fi
+  \else
+    \ifustc@degree@master
+      \ifustc@degree@type@professional
+        \renewcommand\ustc@thesis@name{专业硕士学位论文}
+      \else
+        \ifustc@degree@type@engineering
+          \renewcommand\ustc@thesis@name{工程硕士学位论文}
+        \fi
+      \fi
     \fi
   \fi
+  \IfFontExistsTF{LiSu}{
+    \setCJKfamilyfont{zhli}{LiSu}
+    \providecommand\lishu{\CJKfamily{zhli}}
+  }{
+    \ifustc@cjk@font@mac
+      \providecommand\lishu{\CJKfamily{zhli}}
+    \else
+      \providecommand\lishu{%
+        \ustc@warning{Font LiSu is not available}%
+        \sffamily
+      }
+    \fi
+  }
 \fi
 
 % 定义校徽颜色
@@ -1896,6 +1924,9 @@
     \includegraphics[height=1.3cm]{figures/ustc-name.pdf}\par
     \vskip 0.6cm%
     {\sffamily\fontsize{56bp}{56bp}\selectfont
+      \ifustc@degree@type@academic\else
+        \ziju{-0.1}%
+      \fi
       \ustc@thesis@name\par}%
     \ifustc@degree@type@academic
       \vskip 2.0cm%
@@ -1926,7 +1957,11 @@
     {\fontsize{16bp}{31bp}\selectfont
       \begin{tabular}{@{}l@{\quad}l@{}}%
         \textsf{作者姓名：} & \ustc@author \\
-        \textsf{学科专业：} & \ustc@speciality \\
+        \ifustc@degree@type@engineering
+          \textsf{类别领域：} & \ustc@speciality \\
+        \else
+          \textsf{学科专业：} & \ustc@speciality \\
+        \fi
         \ifx\ustc@practice@supervisor\@empty
           \textsf{导\hspace{2em}师：} & \ustc@supervisor@names \\
         \else
@@ -2115,7 +2150,6 @@
 % 重新定义 \cs{maketitle}，调用 \cs{ustc@makezhtitle}, \cs{ustc@makeentitle}
 % 分别生成中、英文封面。
 \renewcommand\maketitle{%
-  \newgeometry{margin=2.54cm}%
   \pagenumbering{Alph}%
   \pagestyle{empty}%
   \ustc@title@pagetrue
@@ -2407,6 +2441,20 @@
   \chapter*{#2}}
 
 
+% \subsection{创新性说明}
+
+\NewDocumentEnvironment{innovations}{+b}{%
+  \ifustc@degree@doctor
+    \ifustc@degree@type@academic
+      \ustc@chapter{创新性说明}%
+    \else
+      \ustc@chapter{创新性及应用性说明}%
+    \fi
+    #1\par
+  \fi
+}
+
+
 % \subsection{摘要}
 
 % 中文摘要环境。
@@ -2449,6 +2497,7 @@
       \ustc@chapter{ABSTRACT}%
     \endgroup
   \fi
+  \setlength{\parindent}{1em}%
 }{
   \par\null\par\noindent
   \ifustc@degree@bachelor
@@ -2884,6 +2933,25 @@
 \patchcmd{\@getpen}{\@M}{\@Mi}
   {}{\ustc@patch@error{\@getpen}}
 
+
+% \subsection{表达式}
+
+% 修改 `amsmath` 的 `\tagform@`
+% \def\tagform@#1{\maketag@@@{(\ignorespaces#1\unskip\@@italiccorr)}}
+\def\tagform@#1{%
+  \ifustc@language@chinese
+    \ifustc@eqn@paren@style@full
+      % 这里的 `\unskip` 是为了 `式~\eqref` 不产生额外的空格。
+      \unskip
+      % \kern 0pt 防止中文左括号与前面文字的距离过窄
+      \maketag@@@{\kern 0pt\relax （\ignorespaces#1\unskip\@@italiccorr）}%
+    \else
+      \maketag@@@{(\ignorespaces#1\unskip\@@italiccorr)}%
+    \fi
+  \else
+    \maketag@@@{(\ignorespaces#1\unskip\@@italiccorr)}%
+  \fi
+}
 
 % \subsection{参考文献}
 
