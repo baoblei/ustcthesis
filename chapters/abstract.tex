@@ -6,26 +6,31 @@
 }
 
 \begin{abstract}
-  依靠视觉感知水下环境是潜水员进行各种勘探任务时的重要手段，但是由于水介质对不同波长的光存在明显的吸收差异，尤其是对红光的吸收较为显著，导致水下图像常呈现出偏绿色调。同时，水下环境中的悬浮颗粒会在光线传播中产生散射，使得图像出现模糊，严重影响水下成像质量，恶劣的水下图像对各种水下任务如海洋环境观测、海洋工程项目维修、海洋资源探测以及海底遗迹测绘等带来困扰。
+  依靠视觉感知水下环境是潜水员进行各种勘探任务时的重要手段，但是由于水介质对不同波长的光存在明显的吸收差异，尤其是对红光的吸收较为显著，导致水下图像常呈现出偏绿色调。
+  同时，水下环境中的悬浮颗粒会在光线传播中产生散射，使得图像出现模糊，严重影响水下成像质量，恶劣的水下图像对各种水下任务如海洋环境观测、海洋工程项目维修、海洋资源探测以及海底遗迹测绘等带来困扰。
   因此，增强潜水员在水下作业时高质量全方位的辅助感知能力成为当前海洋科学领域亟需解决的问题。
 
   近年来，去噪扩散概率模型和3D高斯泼溅技术在图像生成和三维重建领域取得了显著的进展。
-  本文以这两种技术为基础，提出一种基于去噪扩散模型的水下图像增强算法与水下高质量三维场景重建方法，
+  去噪扩散模型已被验证拥有超越传统基于生成对抗训练网络的图像生成能力，可以解决生成对抗网络固有的模式坍塌问题，但对训练数据的规模与质量要求较高；
+  3D高斯泼溅技术在三维重建领域表现出色，相比神经辐射场模型拥有更快的重建速度，但目前因缺少相关水下场景的数据集，其在水下场景中的有效性尚未得到验证，
+  另外在处理水下动态场景时，也需要考虑环境动态变化对3D高斯建模带来的影响。
+
+  本文以上述两种技术为基础，提出一种水下图像增强算法与水下高质量三维场景重建方法，
   并结合水下可穿戴式设备，设计了一种水下三维感知增强系统，旨在为潜水员提供一个可以自由控制视角的三维场景预览，
   潜水员可以利用该系统在潜水过程中查看目标物体的三维信息，从而辅助潜水员进行水下任务。本文具体研究内容如下：
 
-  （1）考虑水下图像存在的严重退化问题，本文提出一种基于去噪扩散模型的水下图像增强算法。
-  为了缓解扩散模型训练数据的规模依赖问题以及突破模型输出的尺寸限制，本文提出了基于补丁引导的去噪扩散模型采样过程。
-  针对不同分辨率图像输入按照统一大小的补丁对图像进行分解，通过分解后的图像补丁级语义内容预测图像局部区域的噪声，
-  将分解后的预测结果进行重新组合形成完整图像的噪声水平，进而采样出每个去噪阶段的完整图像语义信息与重建特征，
-  让模型可以对任意分辨率的图像进行处理并生成相同尺寸的输出图像，同时缓解扩散模型训练数据的规模依赖。
+  （1）针对水下图像存在的严重退化问题，本文提出一种基于去噪扩散模型的水下图像增强算法。
+  为了缓解扩散模型训练数据的规模依赖问题以及突破模型的图像尺寸限制，本文设计了基于补丁引导的去噪扩散模型采样过程：
+  将不同分辨率图像输入按照统一大小的补丁对图像进行分解，通过分解后的图像补丁级语义内容预测图像局部区域的噪声，
+  让分解后的预测结果进行重新组合形成完整图像的噪声水平，进而采样出每个去噪阶段的完整图像语义信息与重建特征，
+  实现了模型对任意分辨率的图像的适应性和相同分辨率的图像生成，同时缓解了扩散模型训练数据的规模依赖。
   
-  （2）本文提出一种基于3D高斯泼溅的水下目标场景高质量重建方法，
-  首先将3D高斯在时间维度上进行水下动态场景的建模，结合高效的时空编码器与多头解码器进行3D高斯的时空变形预测，实现水下动态场景的初步重建。
-  然后，本文受水流和光照影响的水下动态环境变换存在一个高频分布表示的启发，利用设计的场景过滤模块对学习到的动态重建场景信息进行低频场景数据的过滤，保留水下无扰动的目标场景信息，
-  结合三阶段的自对抗训练模式适应水下环境的动态变换，消除水下运动干扰，更好的优化水下场景的高质量静态模式渲染。
+  （2）针对水下三维感知弱的问题，本文提出一种基于3D高斯泼溅的水下目标场景高质量重建方法。
+  首先将3D高斯在时间维度上进行水下动态场景的建模，结合高效的时空编码器与多头解码器进行3D高斯的时空变形预测，实现水下动态场景的初步重建；
+  然后，受水流和光照影响的水下动态环境变换存在一个高频分布表示的启发，利用设计的场景过滤模块对学习到的动态重建场景信息进行低频场景数据的过滤，保留水下无扰动的目标场景信息；
+  最后结合三阶段的自对抗训练模式适应水下环境的动态变换，消除水下运动干扰，更好的优化水下场景的高质量静态模式渲染。
 
-  （3）基于上述两种算法，本文设计了一种水下可穿戴式三维感知增强系统。基于虚拟显示技术，本文搭建了一套可适用于水下环境中的可穿戴式系统，
+  （3）基于上述两种算法，本文设计了一种水下可穿戴式三维感知增强系统。基于虚拟现实技术，本文搭建了一套可适用于水下环境中的可穿戴式系统，
   并结合预训练的水下3D高斯模型为潜水员提供一个可以自由控制视角的三维场景预览画面，
   同时提出一种基于手势识别的人机交互方法，潜水员可以利用手势控制视角的移动，从而获取目标物体的三维信息，辅助潜水员进行水下任务。
 
@@ -37,32 +42,33 @@
 \end{abstract}
 
 \begin{abstract*}
-Relying on visual perception of the underwater environment is an important means for divers to carry out various exploration tasks.
-However, due to the significant absorption differences of light with different wavelengths in water, especially the remarkable absorption of red light, underwater images often exhibit a greenish tint. 
-At the same time, suspended particles in the underwater environment cause scattering during light propagation, making the images blurry and seriously affecting the underwater imaging quality. 
-Poor quality underwater images pose challenges to various underwater tasks such as marine environment observation, marine engineering project maintenance, marine resource exploration, and underwater archaeological site mapping. 
-Therefore, enhancing the high quality and comprehensive auxiliary perception ability of divers during underwater operations has become an urgent problem to be solved in the current field of marine science.
+Visual perception of underwater environments is crucial for divers conducting exploration tasks. 
+However, underwater images often suffer from severe degradation due to two main factors: 
+the differential absorption of light wavelengths in water (particularly strong absorption of red light) leading to greenish color casts, 
+and light scattering caused by suspended particles resulting in image blur. 
+These degraded underwater images significantly impact various marine applications including environmental monitoring, engineering maintenance, resource exploration, and archaeological mapping. 
+Therefore, enhancing divers' high-quality omnidirectional perception capabilities during underwater operations has become an urgent challenge in marine science.
 
-In recent years, denoising diffusion probability models and 3D Gaussian splashing techniques have made significant progress in the fields of image generation and 3D reconstruction. 
-Based on these two techniques, this paper proposes an underwater image enhancement algorithm and a high quality 3D scene reconstruction method for underwater scenes, both based on denoising diffusion models. 
-Combined with underwater wearable devices, an underwater 3D perceptual enhancement system is designed. 
-The aim is to provide divers with a 3D scene preview whose view can be freely controlled. Divers can use this system to view the 3D information of target objects during diving, thus assisting them in underwater tasks. 
-The specific research contents of this paper are as follows:
+Recent years have witnessed remarkable progress in denoising diffusion probability models and 3D Gaussian splatting techniques for image generation and three-dimensional reconstruction respectively. 
+Denoising diffusion models have demonstrated superior image generation capabilities compared to traditional GAN-based approaches, effectively addressing the mode collapse issue, although they require substantial high-quality training data. 
+3D Gaussian splatting has shown excellent performance in 3D reconstruction, offering faster reconstruction speeds than Neural Radiance Fields (NeRF). However, its effectiveness in underwater scenarios remains unverified due to the lack of relevant datasets, and the impact of dynamic underwater environments on 3D Gaussian modeling needs to be addressed.
 
-(1) Considering the severe degradation problems of underwater images, this paper proposes an underwater image enhancement algorithm based on a denoising diffusion model. 
-To alleviate the scale dependence problem of diffusion model training data and break through the size limitation of the model output, a patch guided denoising diffusion model sampling process is proposed. 
-Images of different resolutions are decomposed into patches of a unified size. The noise of local image regions is predicted based on the semantic content of the decomposed image patches. 
-The predicted results of the decomposed patches are recombined to form the noise level of the complete image, and then the complete image semantic information and reconstruction features at each denoising stage are sampled. 
-This allows the model to process images of any resolution and generate output images of the same size, while alleviating the scale dependence of the diffusion model on training data.
+Based on these two technologies, this thesis proposes an underwater image enhancement algorithm using denoising diffusion models and a high-quality underwater 3D scene reconstruction method. 
+Combined with underwater wearable devices, we design an underwater 3D perception enhancement system that provides divers with freely controllable viewpoint previews of three-dimensional scenes. 
+This system enables divers to examine target objects' 3D information during diving operations, facilitating underwater tasks. The main contributions are as follows:
 
-(2) This paper proposes a high quality reconstruction method for underwater target scenes based on 3D Gaussian splashing. 
-First, 3D Gaussians are used to model underwater dynamic scenes in the time dimension. Combined with an efficient spatio temporal encoder and a multi-head decoder, spatio-temporal deformation prediction of 3D Gaussians is carried out to achieve the preliminary reconstruction of underwater dynamic scenes. 
-Then, inspired by the fact that the dynamic environmental transformation of underwater scenes affected by water flow and lighting has a high frequency distribution representation, a designed scene filtering module is used to filter the low frequency scene data of the learned dynamic reconstruction scene information, retaining the undisturbed target scene information underwater. 
-A three stage self-adversarial training mode is combined to adapt to the dynamic transformation of the underwater environment, eliminate underwater motion interference, and better optimize the high quality static mode rendering of underwater scenes.
+(1) To address severe underwater image degradation, we propose a patch-guided denoising diffusion model sampling process. 
+This approach decomposes input images of varying resolutions into uniformly sized patches, predicts noise levels for local image regions based on patch-level semantic content, 
+and recombines these predictions to form complete image noise levels. This process enables sampling of semantic information and reconstruction features at each denoising stage, 
+achieving resolution-independent image generation while reducing the model's dependence on large-scale training data.
 
-(3) Based on the above two algorithms, this paper designs an underwater wearable 3D perceptual enhancement system.
-Based on virtual display technology, a wearable system suitable for the underwater environment is built.
-Combined with a pretrained underwater 3D Gaussian model, a 3D scene preview screen whose view can be freely controlled is provided for divers. 
-At the same time, a human computer interaction method based on gesture recognition is proposed. Divers can use gestures to control the movement of the view, thereby obtaining the 3D information of target objects and assisting them in underwater tasks.
+(2) To enhance underwater 3D perception, we present a high-quality target scene reconstruction method based on 3D Gaussian splatting. 
+The method first models underwater dynamic scenes by extending 3D Gaussians to the temporal dimension, combining an efficient spatiotemporal encoder with a multi-head decoder for predicting Gaussian deformations. 
+Inspired by the high-frequency distribution patterns of underwater environmental variations caused by water flow and lighting, we design a scene filtering module to filter out low-frequency scene data, 
+preserving undisturbed target scene information. Finally, a three-stage self-adversarial training mode is employed to adapt to dynamic underwater environments, 
+eliminating motion interference while optimizing high-quality static scene rendering.
 
+(3) Integrating the above algorithms, we develop an underwater wearable 3D perception enhancement system. 
+Based on virtual reality technology, we construct a wearable system suitable for underwater environments, incorporating pre-trained underwater 3D Gaussian models to provide divers with freely controllable viewpoint previews. 
+Additionally, we propose a gesture-based human-computer interaction method, allowing divers to control viewpoint movement through hand gestures, thereby accessing target objects' 3D information to assist in underwater tasks.
 \end{abstract*}

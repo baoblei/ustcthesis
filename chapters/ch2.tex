@@ -4,7 +4,7 @@
 本章系统阐述支撑本研究的三项核心技术与理论：去噪扩散概率模型、3D高斯泼溅（3D Gaussian Splatting, 3DGS）技术及相关深度学习基础。
 三者通过协同作用构建了完整的水下感知增强体系：
 首先，基于去噪扩散模型的水下图像增强算法（详见第三章）通过渐进式噪声去除机制恢复退化图像的语义信息；
-其次，增强后的多视角图像经由3D高斯泼溅技术（详见第四章）构建动态场景的显式三维表征；
+其次，增强后的多视角图像经由3D高斯泼溅技术（详见第四章）构建水下目标场景的显式三维表征；
 最终，通过可穿戴设备实现水下三维场景的实时渲染与交互，辅助潜水员进行水下作业。
 另外，U-Net网络与Kolmogorov-Arnold（KAN）网络分别作为图像增强与三维重建的核心组件，
 U-Net用于扩散模型的噪声估计，KAN网络用于3D高斯的时空形变预测。
@@ -24,6 +24,7 @@ U-Net用于扩散模型的噪声估计，KAN网络用于3D高斯的时空形变�
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{figures/ch2/ddpm.pdf}
+    \vspace{2mm}
     \caption{去噪扩散概率模型示意图}
     \label{img:ddpm}
 \end{figure}
@@ -63,7 +64,7 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
     p_\theta\left(\mathbf{x}_{0: T}\right) =p\left(\mathbf{x}_T\right) \prod_{t=1}^T p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right)
 \end{equation}
 
-其中每一步的条件分布 $p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t)$ 是一个高斯分布：
+其中每一步的条件分布 $p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t)$ 是一个正态分布：
 \begin{equation}
 \label{eq:p}
     p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right) =\mathcal{N}\left(\mathbf{x}_{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right), \Sigma_\theta\left(\mathbf{x}_t, t\right)\right) 
@@ -152,12 +153,13 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 % XXXX
 
 \section{3D高斯泼溅技术}
-3D 高斯泼溅技术 \cite{3DGS} 是一种结合点云数据与 3D 高斯函数表示场景的渲染方法，能够自由视角下的高质量的图像。
+3D 高斯泼溅技术 \cite{3DGS} 是一种结合点云数据与 3D 高斯函数表示场景的渲染方法，能够生成自由视角下的高质量图像。
 该方法基于3D 高斯定义了一个可微分的光栅化渲染过程，在提高了渲染效率和质量的同时，使得训练过程可以进行端到端的优化。
 
 \begin{figure}
     \centering
     \includegraphics[width=0.94\textwidth]{figures/ch2/3dgs.pdf}
+    \vspace{2mm}
     \caption{3D 高斯泼溅技术示意图}
     \label{img:3dgs}
 \end{figure}
@@ -171,7 +173,7 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 
 其中，$\Sigma$ 在外观上决定了3D高斯的形状和方向，$\mathcal{X}$ 决定了3D高斯中心在空间中的坐标位置。
 
-为了确保在优化过程中协方差矩阵 $\Sigma$ 维持正定性质，协方差矩阵 $\Sigma$ 被分解为以下形式：
+为了确保在优化过程中协方差矩阵 $\Sigma$ 维持半正定性质，协方差矩阵 $\Sigma$ 被分解为以下形式：
 \begin{equation}
 \label{formula:covariance decomposition}
     \Sigma = \mathbf{R}\mathbf{S}\mathbf{S}^T\mathbf{R}^T
@@ -224,7 +226,7 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 
 编码器部分主要负责特征提取，其架构基于卷积和下采样操作。
 编码器的基本模块包含两个连续的 3×3 卷积层、非线性激活函数 ReLU，以及一个步幅为 2 的最大池化层。
-每次经过一个这样的下采样模块后，特征通道数会增加一倍，从而逐步提取出更加抽象的特征信息。
+每次经过一个这样的下采样模块后，特征通道数会增加一倍，而特征图的空间分辨率会减半，从而逐步提取出更加抽象的特征信息。
 
 解码器部分则通过卷积和上采样的结构逐步恢复图像的分辨率。
 其核心在于利用反卷积和特征拼接操作，将浅层的细节信息与深层的特征相结合，从而增强图像的表达能力。

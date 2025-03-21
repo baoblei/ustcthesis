@@ -1548,7 +1548,7 @@
   vmargin    = 2.54cm,
   hmargin    = 3.17cm,
   headheight = 0.54cm,
-  headsep    = 1pt,
+  headsep    = 2pt,
   footskip   = 0.79cm,
 }
 
