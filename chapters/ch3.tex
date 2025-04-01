@@ -112,19 +112,19 @@ $\mathbf{x}^{(i)} \gets \text{Crop}(\bm{P}_i \circ \bm{X})$\;
 因此前向扩散公式\eqref{eq:q}调整为从原始图像补丁 $\mathbf{x}^{(i)}_0$ 到任意采样时间步 $t$ 中间状态 $\mathbf{x}^{(i)}_t$ 的概率分布：
 \begin{equation}
     \label{eq:q-patch}
-        q\left(\mathbf{x}^{(i)}_t \mid \mathbf{x}^{(i)}_0\right)=\mathcal{N}\left(\mathbf{x}^{(i)}_t ; \sqrt{\bar{\alpha}_t} \mathbf{x}^{(i)}_0,\left(1-\bar{\alpha}_t\right) \mathbf{I}\right)
+        q\left(\mathbf{x}^{(i)}_t \mid \mathbf{x}^{(i)}_0\right)=\mathcal{N}\left(\mathbf{x}^{(i)}_t ; \sqrt{\bar{\alpha}_t} \mathbf{x}^{(i)}_0,\left(1-\bar{\alpha}_t\right) \mathbf{I}\right).
 \end{equation}
 
 对于后向采样过程，原公式 \eqref{eq:p}调整为表示从当前采样时间步 $t$ 的补丁 $\mathbf{x}^{(i)}_t$ 推断上一采样时间步 $t-1$ 补丁 $\mathbf{x}^{(i)}_{t-1}$ 的概率分布：
 \begin{equation}
     \label{eq:p-patch}
-    p_\theta\left(\mathbf{x}^{(i)}_{t-1} \mid \mathbf{x}^{(i)}_t\right) =\mathcal{N}\left(\mathbf{x}^{(i)}_{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}^{(i)}_t, t\right), \Sigma_\theta\left(\mathbf{x}^{(i)}_t, t\right)\right)
+    p_\theta\left(\mathbf{x}^{(i)}_{t-1} \mid \mathbf{x}^{(i)}_t\right) =\mathcal{N}\left(\mathbf{x}^{(i)}_{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}^{(i)}_t, t\right), \Sigma_\theta\left(\mathbf{x}^{(i)}_t, t\right)\right).
 \end{equation}
 
 噪声估计阶段的核心任务是从每个补丁中学习局部图像的先验信息。
 后向过程中的均值 $\boldsymbol{\mu}_\theta$ 可进一步由以下公式计算：
 \begin{equation}
-    \boldsymbol{\mu}_\theta\left(\mathbf{x}^{(i)}_t, t\right)=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}^{(i)}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}^{(i)}_t, t\right)\right)
+    \boldsymbol{\mu}_\theta\left(\mathbf{x}^{(i)}_t, t\right)=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}^{(i)}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}^{(i)}_t, t\right)\right).
 \end{equation}
 
 图 \ref{img:patch} 给出了一种在滑动窗口步长$s$等于补丁大小$p$时的补丁分解示例，此时除边缘区域外，补丁之间不会有重叠，
@@ -165,12 +165,12 @@ $\mathbf{x}^{(i)} \gets \text{Crop}(\bm{P}_i \circ \bm{X})$\;
 （3）根据公式\eqref{eq:x0_xt_patch}，将噪声添加到已知的目标补丁 $\mathbf{x}_0^{(i)}$中：
 \begin{equation}
 \label{eq:x0_xt_patch}
-    \mathbf{x}_t^{(i)} = \sqrt{\bar{\alpha}_t} \mathbf{x}_0^{(i)} + \sqrt{1 - \bar{\alpha}_t} \bm{\epsilon}_t
+    \mathbf{x}_t^{(i)} = \sqrt{\bar{\alpha}_t} \mathbf{x}_0^{(i)} + \sqrt{1 - \bar{\alpha}_t} \bm{\epsilon}_t.
 \end{equation}
 
 利用梯度下降算法训练的核心是优化模型参数 $\theta$，使其能够准确预测噪声 $\bm{\epsilon}_\theta$，因此目标是最小化以下损失函数：
 \begin{equation}
-    \nabla_{\theta}\vert\vert\bm{\epsilon}_t -  \bm{\epsilon}_{\theta}(\sqrt{\bar{\alpha}_t}\mathbf{x}_0^{(i)}+\sqrt{1-\bar{\alpha}_t}\bm{\epsilon}_t\,,\tilde{\mathbf{x}}^{(i)},t)\vert\vert^2
+    \nabla_{\theta}\vert\vert\bm{\epsilon}_t -  \bm{\epsilon}_{\theta}(\sqrt{\bar{\alpha}_t}\mathbf{x}_0^{(i)}+\sqrt{1-\bar{\alpha}_t}\bm{\epsilon}_t\,,\tilde{\mathbf{x}}^{(i)},t)\vert\vert^2.
 \end{equation}
 
 \begin{algorithm}
@@ -344,60 +344,55 @@ UIEB 数据集包含 890 张配对的水下图像（paired）以及 60 张无参
 （1）峰值信噪比（Peak Signal-to-Noise Ratio, PSNR）：PSNR是一种客观评价图像质量的重要指标，它通过比较图像信号的最大值与背景噪声的强弱来评估图像质量。
 PSNR 首先统计了参考图像和生成结果之间的均方误差$\mathrm{MSE}$：
 \begin{equation}
-    \mathrm{MSE} = \frac{1}{N} \sum_{i=1}^{N} (I(i) - K(i))^2
+    \mathrm{MSE} = \frac{1}{N} \sum_{i=1}^{N} (I(i) - K(i))^2,
 \end{equation}
-
 其中，$I$ 和 $K$ 分别表示参考图像和生成结果，$N$ 表示图像的像素总数。PSNR对均方误差的结果进了一定的标准化，计算方式为：
 \begin{equation}
-    \mathrm{PSNR} =10 \times \log _{10} \frac{(\mathrm{MAXI})^2}{\mathrm{MSE}}
+    \mathrm{PSNR} =10 \times \log _{10} \frac{(\mathrm{MAXI})^2}{\mathrm{MSE}},
 \end{equation}
-
 其中，$\mathrm{MAXI}$ 为图像的最大像素值，表示像素值的动态范围，对于8位图像，$\mathrm{MAXI}=255$。
 一般来说，PSNR对光照误差敏感，能有效反映图像质量，峰值信噪比越高，图像质量通常越好。
 
 （2）结构相似性指数（Structural Similarity Index Measure, SSIM） \cite{ssim}：SSIM通过比较图像之间的多个视觉要素来计算损失，包括亮度$l$、对比度$c$和结构$s$三个方面评价图像质量。
 计算三种评价指标首先需要计算参考图像和生成结果的像素平均值$\mu_x$和$\mu_y$，以及对应的方差$\sigma_x^2$，$\sigma_y^2$和协方差$\sigma_{xy}$：
 \begin{equation}
-    \mu_x = \frac{1}{N} \sum_{i=1}^{N} I(i) , \quad \mu_y = \frac{1}{N} \sum_{i=1}^{N} K(i)
+    \mu_x = \frac{1}{N} \sum_{i=1}^{N} I(i) , \quad \mu_y = \frac{1}{N} \sum_{i=1}^{N} K(i),
 \end{equation}
 
 \begin{equation}
-    \sigma_x^2 = \frac{1}{N} \sum_{i=1}^{N} (I(i) - \mu_x)^2 , \quad \sigma_y^2 = \frac{1}{N} \sum_{i=1}^{N} (K(i) - \mu_y)^2
+    \sigma_x^2 = \frac{1}{N} \sum_{i=1}^{N} (I(i) - \mu_x)^2 , \quad \sigma_y^2 = \frac{1}{N} \sum_{i=1}^{N} (K(i) - \mu_y)^2,
 \end{equation}
 
 \begin{equation}
-    \sigma_{xy} = \frac{1}{N} \sum_{i=1}^{N} (I(i) - \mu_x)(K(i) - \mu_y)
+    \sigma_{xy} = \frac{1}{N} \sum_{i=1}^{N} (I(i) - \mu_x)(K(i) - \mu_y),
 \end{equation}
-
 其中，$I$ 表示参考图像，$K$ 表示生成结果，$N$ 表示图像的像素总数，结合这些统计值可以计算亮度、对比度和结构三个方面的评价指标：
 
 亮度评价指标的计算公式为：
 \begin{equation}
-    l(x, y) = \frac{2\mu_x\mu_y + c_1}{\mu_x^2 + \mu_y^2 + c_1}
+    l(x, y) = \frac{2\mu_x\mu_y + c_1}{\mu_x^2 + \mu_y^2 + c_1}.
 \end{equation}
 
 对比度评价指标的计算公式为：
 \begin{equation}
-    c(x, y) = \frac{2\sigma_x\sigma_y + c_2}{\sigma_x^2 + \sigma_y^2 + c_2}
+    c(x, y) = \frac{2\sigma_x\sigma_y + c_2}{\sigma_x^2 + \sigma_y^2 + c_2}.
 \end{equation}
 
 结构评价指标的计算公式为：
 \begin{equation}
-    s(x, y) = \frac{{\sigma_{xy} + c_3}}{{\sigma_x\sigma_y + c_3}}
+    s(x, y) = \frac{{\sigma_{xy} + c_3}}{{\sigma_x\sigma_y + c_3}},
 \end{equation}
-
-其中，常数$c_1=(255\times0.01)^2$、$c_2=(255\times0.03)^2$、$c_3=(255\times0.015)^2$ 是稳定因子，
+其中，常数$c_1=(255\times0.01)^2$、$c_2=(255\times0.03)^2$、$c_3=(255\times0.015)^2$ 是稳定因子。
 
 SSIM 综合考量了亮度、对比度和结构三个方面的评价指标，具体计算公式为：
 \begin{equation}
-    \mathrm{SSIM} = [{{l(x,y)}^\alpha} \cdot {{c(x,y)}^\beta} \cdot {{s(x,y)}^\gamma} ]
+    \mathrm{SSIM} = [{{l(x,y)}^\alpha} \cdot {{c(x,y)}^\beta} \cdot {{s(x,y)}^\gamma} ].
 \end{equation}
 
 令$c_3=\frac{c_2}{2}$，$\alpha=\beta=\gamma=1$，则SSIM可以简化为：
 \begin{equation}
-    \mathrm{SSIM} = \frac{{(2\mu_x\mu_y + c_1)(2\sigma_{xy} + c_2)}}{{(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}}
+    \mathrm{SSIM} = \frac{{(2\mu_x\mu_y + c_1)(2\sigma_{xy} + c_2)}}{{(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}},
 \end{equation}
-
 其中，$\mathrm{SSIM}$ 的取值范围为 $[-1, 1]$，值越大，表示生成结果在亮度、对比度和结构三个方面与参考图像越相似，图像质量越好。
 
 （3）水下图像质量指标（Underwater Image Quality Measure, UIQM） \cite{uiqm}：UIQM是一种无参考水下图像质量评价指标，可以在没有参考图像的情况下，对生成结果进行客观评价。
@@ -406,39 +401,35 @@ SSIM 综合考量了亮度、对比度和结构三个方面的评价指标，具
 
 $\mathrm{UICM}$通过分析图像的颜色通道差异来量化图像的色彩特性：
 \begin{equation}
-    \mathrm{UICM}=-0.0268 \times \sqrt{\mu_{RG}^2 + \mu_{YB}^2} + 0.1586 \times \sqrt{\sigma_{RG}^2 + \sigma_{YB}^2}
+    \mathrm{UICM}=-0.0268 \times \sqrt{\mu_{RG}^2 + \mu_{YB}^2} + 0.1586 \times \sqrt{\sigma_{RG}^2 + \sigma_{YB}^2},
 \end{equation}
-
 其中，$\mu_{RG}$ 和 $\mu_{YB}$ 分别表示生成结果红绿两个通道的差异均值和黄蓝两个通道的差异均值，对于RGB图像来说，黄色通道可以通过计算红绿通道像素均值得到，
 $\sigma_{RG}$ 和 $\sigma_{YB}$ 分别表示对应的方差。
 
 $\mathrm{UISM}$ 通过分析图像的局部对比度来量化图像的清晰度，因此首先需要计算图像的局部对比度$\mathrm{EME}$：
 \begin{equation}
-    \mathrm{EME} = \frac{2}{k_1 k_2} \sum_{l=1}^{k_1} \sum_{k=1}^{k_2} \log \left( \frac{I_{\text{max},k,l}}{I_{\text{min},k,l}} \right)
+    \mathrm{EME} = \frac{2}{k_1 k_2} \sum_{l=1}^{k_1} \sum_{k=1}^{k_2} \log \left( \frac{I_{\text{max},k,l}}{I_{\text{min},k,l}} \right),
 \end{equation}
-
 其中，$k_1$ 和 $k_2$ 分别表示图像的行和列的像素数，$I_{\text{max},k,l}$ 和 $I_{\text{min},k,l}$ 分别表示图像在第$k$行和第$l$列的像素最大值和最小值。
 
 而$\mathrm{UISM}$ 为$\mathrm{EME}$的在不同通道上的加权和：
 \begin{equation}
-    \mathrm{UISM} = 0.299 \times \mathrm{EME}_{R} + 0.587 \times \mathrm{EME}_{G} + 0.114 \times \mathrm{EME}_{B}
+    \mathrm{UISM} = 0.299 \times \mathrm{EME}_{R} + 0.587 \times \mathrm{EME}_{G} + 0.114 \times \mathrm{EME}_{B}.
 \end{equation}
 
 $\mathrm{UIConM}$ 通过衡量图像中最亮和最暗部分的区分度来量化图像的对比度，首先需要在图像对应的灰度图像中计算平均灰度值$\mu$：
 \begin{equation}
-   \mu = \frac{1}{N} \sum_{i=1}^{N} x_i
+   \mu = \frac{1}{N} \sum_{i=1}^{N} x_i,
 \end{equation}
-
 其中，$N$ 表示图像的像素总数，$x_i$ 表示图像的第$i$个像素的灰度值。然后计算灰度图的标准差 \(\sigma\)即为UIConM值：
 \begin{equation}
-    \mathrm{UIConM}=\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} 
+    \mathrm{UIConM}=\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2}.
 \end{equation}
 
 结合以上色彩测量指标 UICM、清晰度测量指标 UISM 和对比度测量指标 UIConM的计算方式，UIQM 以加权平均的方式计算最终的水下图像评价指标：
 \begin{equation}
-    \mathrm{UIQM}=c_1 \times \mathrm{UICM}+c_2 \times \mathrm{UISM}+c_3 \times \mathrm{UIConM}
+    \mathrm{UIQM}=c_1 \times \mathrm{UICM}+c_2 \times \mathrm{UISM}+c_3 \times \mathrm{UIConM},
 \end{equation}
-
 其中，常数$c_1=0.0282$、$c_2=0.2953$、$c_3=3.5753$为权重系数。
 
 表\ref{tab:psnr-ssim}  和表\ref{tab:uiqm} 分别列出了本章提出的水下图像增强的方法与其他主流方法在 PSNR、SSIM 和 UIQM 等指标上的比较结果。

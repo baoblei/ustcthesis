@@ -50,22 +50,20 @@ HexPlane 模块可以有效利用这种相邻时空信息的相似性质，对�
 因此3D时空结构编码器$\mathcal{H}$包含6个多分辨率平面模块$R_l(i,j)$和一个小型MLP模块$\phi_d$，如公式\ref{eq:encoder_H}所示：
 \begin{equation}
 \label{eq:encoder_H}
-\mathcal{H}(G, t) = \{ R_l(i,j), \phi_d \ | \ (i,j) \in \{(x,y), (x,z), (y,z), (x,t), (y,t), (z,t)\}, l \in \{1, 2\} \}
+\mathcal{H}(G, t) = \{ R_l(i,j), \phi_d \ | \ (i,j) \in \{(x,y), (x,z), (y,z), (x,t), (y,t), (z,t)\}, l \in \{1, 2\} \},
 \end{equation}
-
 其中，$\mathcal{X} = (x, y, z)$表示3D高斯的中心位置，$l$表示上采样的尺度，平面体素的基础分辨率为$N_i \times N_j$，
 因此每个体素平面模块$R_l(i,j)$的维度为$R_l(i,j) \in \mathbb{R}^{h \times N_i \times l \times N_j \times l}$，
 其中$h$表示平面中单个体素特征的维度。
 
 为提取每个体素特征，需要在6个2D体素平面中对3D高斯的位置信息进行编码，可以使用双线性插值的方法查询平面体素网格四个顶点的特征，计算公式为：
 \begin{equation}
-f_h = \bigcup_l \prod \text{interp}(R_l(i,j)), \quad (i,j) \in \{(x,y),(x,z),(y,z),(x,t),(y,t),(z,t)\}
+f_h = \bigcup_l \prod \text{interp}(R_l(i,j)), \quad (i,j) \in \{(x,y),(x,z),(y,z),(x,t),(y,t),(z,t)\},
 \end{equation}
-
 其中，$f_h \in \mathbb{R}^{h \times l}$表示神经体素的特征。
 随后，MLP 模块 $\phi_d$ 融合所有特征以生成最终的编码表示：
 \begin{equation}
-f_d = \phi_d(f_h)
+f_d = \phi_d(f_h).
 \end{equation}  
 
 该编码过程不仅可以高效捕获动态场景中时空特征的变化，还为后续高斯变形计算奠定基础，在动态场景中更好地捕捉物体的运动轨迹和形变特征，提高重建的精度和稳定性。
@@ -77,7 +75,7 @@ f_d = \phi_d(f_h)
 KAN 模块通过学习神经元的最优激活方式，在保证解码准确性的同时减少了所需的神经元数量。
 基于KAN的特征解码器通过自适应的方式预测3D高斯每个属性的变化量，最后得到变形后的3D高斯表示：
 \begin{equation}
-    G^\prime = \{ \mathcal{X} + \Delta \mathcal{X}, r + \Delta r, s + \Delta s, \alpha,\mathcal{C} \}
+    G^\prime = \{ \mathcal{X} + \Delta \mathcal{X}, r + \Delta r, s + \Delta s, \alpha,\mathcal{C} \}.
 \end{equation}
 
 通过上面介绍的3D高斯时空编码器与基于KAN的特征解码器，可以实现对带有时间信息的动态多视角图片序列和对应的相机位姿序列进行4D的时空建模优化，
@@ -105,16 +103,16 @@ KAN 模块通过学习神经元的最优激活方式，在保证解码准确性�
 
 （1）初始化训练阶段：利用基于结构化运动（SfM）方法\cite{sfm1}\cite{sfm2}初始化的点云，得到初始化的3D高斯-1：
 \begin{equation}
-    G_1 = Train_{w/o-\mathcal{F} }(Cam)
+    G_1 = Train_{w/o-\mathcal{F} }(Cam),
 \end{equation}
-
 其中$Cam$为完整的训练相机序列数据，$\mathcal{F}$为基于3D高斯时空编码器与KAN的特征解码器网络。
+
 该阶段旨在快速完成初步重建，缓解动态重建初期的不稳定性，避免后续训练阶段中由于梯度爆炸出现程序崩溃，故暂时不使用变形预测网络（$w/o-\mathcal{F}$）。
 
 （2）动态场景训练阶段：通过章节 \ref{sec:4dgs} 中介绍的 3D 高斯时空编码器与基于 KAN 的特征解码器构成的变形预测网络$\mathcal{F}$进行动态场景的训练，从而实现水下动态重建质量，
 得到动态场景的基础3D高斯-2和网络权重$\mathcal{F}$：
 \begin{equation}
-    G_2, \mathcal{F} = Train_{w/-\mathcal{F} }(Cam)
+    G_2, \mathcal{F} = Train_{w/-\mathcal{F} }(Cam).
 \end{equation}
 
 该阶段依旧用完整训练数据$Cam$进行训练，与初始化训练阶段不同的是，该阶段需利用其中的不同相机位姿的时间信息来通过变形预测网络$\mathcal{F}$将$G_2$变形为对应时刻的变形结果$G_2^\prime$，
@@ -123,12 +121,12 @@ KAN 模块通过学习神经元的最优激活方式，在保证解码准确性�
 （3）目标场景训练阶段：首先结合上一阶段优化的变形预测网络$\mathcal{F}$和$G_2$对完整的训练数据$Cam$进行筛选，
 提取其中的最高频出现的静态场景数据$Cam_s$：
 \begin{equation}
-    Cam_s = Filter(G_2, Cam, \mathcal{F})
+  Cam_s = Filter(G_2, Cam, \mathcal{F}).
 \end{equation}
 
-最后按照新的训练数据$Cam_s$进行目标场景训练，从而实现目标静态场景的高质量建模，另外这一阶段依旧保留 3D 高斯变形机制，以提高重建的鲁棒性。
+最后按照新的训练数据$Cam_s$进行目标场景训练，从而实现目标静态场景的高质量建模，另外这一阶段依旧保留 3D 高斯变形机制，以提高重建的鲁棒性：
 \begin{equation}
-    G_3, \mathcal{F} = Train_{w/-\mathcal{F} }(Cam_s)
+    G_3, \mathcal{F} = Train_{w/-\mathcal{F} }(Cam_s).
 \end{equation}
 
 通过采用这种多阶段训练模式，可以利用筛选后的训练数据$Cam_s$去除原始数据中的干扰数据，从而进一步提升静态场景的重建精度和稳定性。
@@ -150,7 +148,7 @@ KAN 模块通过学习神经元的最优激活方式，在保证解码准确性�
 接下来对相邻时刻的3D高斯变形进行差分分析，计算每个时间步的场景变化量$\delta_i$。
 例如，对于时刻$t_i$和$t_{i+1}$，通过计算变形后3D高斯位置$\mathcal{X}_i$和$\mathcal{X}_{i+1}$之间的欧氏距离来量化场景变化：
 \begin{equation}
-\delta_i = \|\mathcal{X}_{i+1} - \mathcal{X}_i\|_2
+\delta_i = \|\mathcal{X}_{i+1} - \mathcal{X}_i\|_2,
 \end{equation}
 再统计所有相邻时刻的场景变化量得到时序差分序列$\delta$。
 
@@ -158,9 +156,8 @@ KAN 模块通过学习神经元的最优激活方式，在保证解码准确性�
 对于每个时刻$i$，通过在其前后$\lfloor\omega/2\rfloor$个时刻范围内计算均值来平滑当前时刻的变化量：
 
 \begin{equation}
-\delta_s^i = \frac{1}{w_{\text{end}} - w_{\text{start}} + 1} \sum_{j=w_{\text{start}}}^{w_{\text{end}}} \delta_j
+\delta_s^i = \frac{1}{w_{\text{end}} - w_{\text{start}} + 1} \sum_{j=w_{\text{start}}}^{w_{\text{end}}} \delta_j,
 \end{equation}
-
 其中，$w_{\text{start}} = \max(1, i - \lfloor\omega/2\rfloor)$和$w_{\text{end}} = \min(|\Delta|, i + \lfloor\omega/2\rfloor)$分别表示滑动窗口的起始和结束位置。
 这种自适应窗口边界的处理方式确保了序列首尾处的平滑操作也能得到合理的结果。
 
@@ -178,22 +175,22 @@ KAN 模块通过学习神经元的最优激活方式，在保证解码准确性�
 
 （2）计算序列的总样本数$N$和全局均值$\mu_T$：
 \begin{equation}
-N = \sum_{i=1}^{50} n_i, \quad \mu_T = \frac{1}{N}\sum_{i=1}^{50} x_i \cdot n_i
+N = \sum_{i=1}^{50} n_i, \quad \mu_T = \frac{1}{N}\sum_{i=1}^{50} x_i \cdot n_i.
 \end{equation}
 
 （3）对每个可能的阈值$\tau$，计算前景类（小于等于阈值）的累积统计量：
 \begin{equation}
-n_b(\tau) = \sum_{i=1}^{\tau} n_i, \quad \mu_b(\tau) = \sum_{i=1}^{\tau} x_i \cdot n_i
+n_b(\tau) = \sum_{i=1}^{\tau} n_i, \quad \mu_b(\tau) = \sum_{i=1}^{\tau} x_i \cdot n_i.
 \end{equation}
 
 （4）计算前景类和背景类的类间方差：
 \begin{equation}
-\sigma_B^2(\tau) = \frac{n_b(\tau)}{N} \cdot \frac{N-n_b(\tau)}{N} \cdot [\frac{\mu_b(\tau)}{n_b(\tau)} - \frac{\mu_T \cdot N-\mu_b(\tau)}{N-n_b(\tau)}]^2
+\sigma_B^2(\tau) = \frac{n_b(\tau)}{N} \cdot \frac{N-n_b(\tau)}{N} \cdot [\frac{\mu_b(\tau)}{n_b(\tau)} - \frac{\mu_T \cdot N-\mu_b(\tau)}{N-n_b(\tau)}]^2.
 \end{equation}
 
 （5）选择使类间方差最大的阈值作为最优分割阈值：
 \begin{equation}
-\tau_{\text{otsu}} = \arg\max_{\tau} \{\sigma_B^2(\tau)\}
+\tau_{\text{otsu}} = \arg\max_{\tau} \{\sigma_B^2(\tau)\}.
 \end{equation}
 
 这种基于类间方差最大化的阈值选择方法，能够自动找到最优的分割点，将时序差分序列$\delta_s$分为多个静态片段（低于阈值）$\mathcal{S}$和动态片段（高于阈值）两类。
@@ -210,12 +207,12 @@ OTSU算法的优势在于其自适应性，无需人工设定固定阈值，能�
 
 （2）对其他静态片段$s\in\mathcal{S}$进行验证，计算其采样数据$\mathcal{D}_s$与参考数据$\mathcal{R}$的相似度：
 \begin{equation}
-\text{sim}(\mathcal{D}_s, \mathcal{R}) = \frac{1}{|\mathcal{D}_s||\mathcal{R}|}\sum_{d \in \mathcal{D}_s}\sum_{r \in \mathcal{R}}\|d - r\|_2
+\text{sim}(\mathcal{D}_s, \mathcal{R}) = \frac{1}{|\mathcal{D}_s||\mathcal{R}|}\sum_{d \in \mathcal{D}_s}\sum_{r \in \mathcal{R}}\|d - r\|_2.
 \end{equation}
 
 （3）当相似度满足阈值条件时，将该静态片段加入有效片段集合$\mathcal{S}_{\text{valid}}$：
 \begin{equation}
-\mathcal{S}_{\text{valid}} = \{s \ | \ \text{sim}(\mathcal{D}_s, \mathcal{R}) < \tau_{\text{otsu}}\}
+\mathcal{S}_{\text{valid}} = \{s \ | \ \text{sim}(\mathcal{D}_s, \mathcal{R}) < \tau_{\text{otsu}}\}.
 \end{equation}
 
 最终，通过合并所有有效静态片段，得到用于静态场景重建的相机序列$Cam_s=\bigcup_{s\in\mathcal{S}_{\text{valid}}}s$。
@@ -231,24 +228,21 @@ OTSU算法的优势在于其自适应性，无需人工设定固定阈值，能�
 
 L1颜色损失用于衡量生成的场景颜色与真实场景颜色之间的绝对误差，计算公式为：
 \begin{equation}
-    \mathcal{L}_{color} = \sum_{i} \left\| \hat{C}_i - C_i \right\|_1
+    \mathcal{L}_{color} = \sum_{i} \left\| \hat{C}_i - C_i \right\|_1,
 \end{equation}
-
 其中，$\hat{C}_i$是模型生成的第$i$个像素的颜色值，$C_i$是对应的真实颜色值。
 
 全变差损失通过度量网格中像素值的梯度变化来减少不必要的细节和噪声，从而增强重建结果的平滑性和稳定性，特别是在处理高频细节和复杂动态场景时。
 其计算公式为：
 \begin{equation}
-    \mathcal{L}_{tv} = \sum_{i,j} \left\| \nabla G(i,j) \right\|_2
+    \mathcal{L}_{tv} = \sum_{i,j} \left\| \nabla G(i,j) \right\|_2,
 \end{equation}
-
 其中，$\nabla G(i,j)$表示网格中位置$(i,j)$的梯度，衡量的是相邻体素之间的变化。这个损失项在训练过程中有助于避免模型过度拟合细节，从而提高重建的鲁棒性。
 
 最终的总损失函数 $\mathcal{L}_{total}$ 结合了上述两种损失，通过加权组合实现颜色一致性与平滑性的平衡：
-$$
-\mathcal{L}_{total} = \mathcal{L}_{color} + \lambda_{tv} \cdot \mathcal{L}_{tv}
-$$
-
+\begin{equation}
+\mathcal{L}_{total} = \mathcal{L}_{color} + \lambda_{tv} \cdot \mathcal{L}_{tv},
+\end{equation}
 其中，$\lambda_{tv}$是全变差损失的权重系数，用于平衡颜色损失和平滑性损失之间的影响。
 通过最小化总损失函数，模型不仅能够实现对动态场景的高精度重建，还能有效抑制噪声的干扰，保证生成结果的平滑性和视觉质量。
 
@@ -328,11 +322,10 @@ $$
 为全面评估水下场景重建方法的性能，实验采用除章节\ref{sec:quantitative}中的参考指标PSNR与SSIM外，还引入了感知质量指标以及渲染时的运行帧率。
 
 （1）感知质量指标（Learned Perceptual Image Patch Similarity, LPIPS）\cite{lpips}： 人类可以快速评估两幅图像之间的感知相似性，但是其背后的底层过程非常复杂，涉及对图像不同尺度的特征的比较过程。
-因此，LPIPS 提出了使用预训练的深度网络来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度；
+因此，LPIPS 提出了使用预训练的深度网络来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度：
 \begin{equation}
-    d(x, x_0) = \sum_{l} \frac{1}{H_l W_l} \sum_{h,w} \left\| w_l \odot (\hat{y}^l_{hw} - \hat{y}^l_{0hw}) \right\|_2^2
+    d(x, x_0) = \sum_{l} \frac{1}{H_l W_l} \sum_{h,w} \left\| w_l \odot (\hat{y}^l_{hw} - \hat{y}^l_{0hw}) \right\|_2^2,
 \end{equation}
-
 其中，$x$和$x_0$分别表示生成结果和参考图像，$H_l,W_l$表示图像在第$l$个尺度上的特征图的尺寸，$\hat{y}^l_{hw}$和$\hat{y}^l_{0hw}$表示图像在该尺度上的特征图在位置$(h, w)$的值，$w_l$是第$l$个尺度的权重系数。
 
 （2）运行帧率（Frames Per Second, FPS）：使用模型在1s内可以光栅化渲染的图像数量，衡量模型的重建时运行速度。

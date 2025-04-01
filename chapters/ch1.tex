@@ -72,10 +72,9 @@ AUV、ROV等水下机器人通过在设备终端配置水下相机来采集水�
 \subsubsection{基于物理模型的方法}
 基于物理模型的方法依赖于水下图像生成过程的数学模型来增强水下图像 \cite{uw_img_math1}\cite{uw_img_math2}：
 \begin{equation}
-I=J \cdot e^{-\beta d}+B^{\infty} \cdot\left(1-e^{-\beta d}\right) 
+I=J \cdot e^{-\beta d}+B^{\infty} \cdot\left(1-e^{-\beta d}\right),
 \label{IFM1}
 \end{equation}
-
 其中$I$是水下退化后的图像，$J$是未衰减的图像，$B^{\infty}$是大气光照， $\beta$是衰减系数，$d$是相机到物体的距离。
 该模型与陆地图像恢复方法中常用的图像生成过程模型类似 \cite{ifm}，用数学模型从退化原理出发表示了水下图像的衰减与散射过程。
 2018年，Akkaynak等人\cite{modified_uw_img_math}通过使用$\beta^D\left(\mathbf{v}_D\right)$和$\beta^B\left(\mathbf{v}_B\right)$修正其中的前向衰减系数和后向衰减系数更新了水下图像生成数学模型：
@@ -84,7 +83,7 @@ I=J \cdot e^{-\beta d}+B^{\infty} \cdot\left(1-e^{-\beta d}\right)
 % \label{IFM2}
 % \end{equation}
 \begin{equation}
-    I=J e^{-\beta^D\left(\mathbf{v}_D\right) \cdot d}+B^{\infty}\left(1-e^{-\beta^B\left(\mathbf{v}_B\right) \cdot d}\right)
+    I=J e^{-\beta^D\left(\mathbf{v}_D\right) \cdot d}+B^{\infty}\left(1-e^{-\beta^B\left(\mathbf{v}_B\right) \cdot d}\right).
     \label{IFM2}
 \end{equation}
 
@@ -187,8 +186,8 @@ NeRF通过定义隐式函数来表征三维场景，并通过体积渲染 \cite{
 二是如何在水下动态环境中消除运动干扰，同时保留原始3DGS的高效渲染能力。
 
 
-\section{本文研究内容与结构安排}
-\subsection{研究内容}
+\section{本文主要工作与组织结构}
+\subsection{本文主要工作}
 基于上述对水下图像增强任务以及三维重建工作的研究现状与问题分析，本文针对目前水下图像恢复难、水下三维感知质量差等问题，提出了基于去噪扩散模型以及3D高斯泼溅技术的水下图像增强以及三维重建方法\cite{patch_based_ddpm}，
 并在此基础上结合水下可穿戴式平台设计一套有效的水下三维增强感知系统，用于辅助潜水员在进行水下作业时实时预览目标场景的三维信息。
 \begin{figure}
@@ -198,7 +197,7 @@ NeRF通过定义隐式函数来表征三维场景，并通过体积渲染 \cite{
     \label{img:overview}
 \end{figure}
 
-本文的主要研究如图\ref{img:overview}所示，包括以下几个方面：
+本文的主要研究内容如图\ref{img:overview}所示，包括以下几个方面：
 
 （1）本文提出一种基于补丁引导采样过程的去噪扩散模型方法，并结合补丁大小重新设计噪声估计网络结构，利用条件扩散模型实现水下图像的增强。
 这种补丁级别的处理方式不仅缓解了扩散模型对数据规模的依赖，同时让提出的方法突破分辨率限制，适用于任意分辨率图像的处理。

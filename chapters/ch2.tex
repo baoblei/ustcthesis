@@ -32,28 +32,25 @@ U-Net用于扩散模型的噪声估计，KAN网络用于3D高斯的时空形变�
 正向过程 $q$ 是一个逐步添加高斯噪声的过程，其从干净的图像 $\mathbf{x}_0$ 开始，在每个时间步 $t$ 根据给定的噪声方差表 $\beta_1, \dots, \beta_T$ 生成一系列噪声图像 $\mathbf{x}_1, \dots, \mathbf{x}_T$，具体定义如下：
 \begin{equation}
     \label{eq:q_1step}
-    q\left(\mathbf{x}_t \mid \mathbf{x}_{t-1}\right)=\mathcal{N}\left(\mathbf{x}_t ; \sqrt{1-\beta_t} \mathbf{x}_{t-1}, \beta_t \mathbf{I}\right)
+    q\left(\mathbf{x}_t \mid \mathbf{x}_{t-1}\right)=\mathcal{N}\left(\mathbf{x}_t ; \sqrt{1-\beta_t} \mathbf{x}_{t-1}, \beta_t \mathbf{I}\right),
 \end{equation}
-
 其中 $\mathbf{I}$ 为单位矩阵，每一步的结果符合正态分布 $\mathcal{N}$。整个扩散过程可以视为条件正态分布的链式乘积：
 \begin{equation}
-    q\left(\mathbf{x}_{1: T} \mid \mathbf{x}_0\right)=\prod_{t=1}^T q\left(\mathbf{x}_t \mid \mathbf{x}_{t-1}\right)
+    q\left(\mathbf{x}_{1: T} \mid \mathbf{x}_0\right)=\prod_{t=1}^T q\left(\mathbf{x}_t \mid \mathbf{x}_{t-1}\right).
 \end{equation}
 
-图像 $\mathbf{x}_0 \sim q\left(\mathbf{x}_0\right)$ 在 $T$ 个扩散时间步中逐渐被破坏，每个噪声级别建模为一个扩散过程。
+图像 $\mathbf{x}_0 \sim q\left(\mathbf{x}_0\right)$ 在 $T$ 个扩散时间步中逐渐被破坏，每个噪声级别建模为一个扩散过程，
 正向过程的目标是生成与真实世界噪声图像相似的高斯噪声。这个过程使得模型可以学习不同级别的噪声统计特性及其对图像的影响。
 定义 $\alpha_t=1-\beta_t$ 和  $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$，则可以将上述过程推导为任意时间步 $t$ 的图像 $\mathbf{x}_t$ 相对于初始图像 $\mathbf{x}_0$ 的条件分布：
 \begin{equation}
     \label{eq:q}
-q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sqrt{\bar{\alpha}_t} \mathbf{x}_0,\left(1-\bar{\alpha}_t\right) \mathbf{I}\right)
+q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sqrt{\bar{\alpha}_t} \mathbf{x}_0,\left(1-\bar{\alpha}_t\right) \mathbf{I}\right),
 \end{equation}
-
 可以通过重参数化转为封闭形式：
 \begin{equation}
     \label{eq:x0_xt}
-    \mathbf{x}_t=\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \epsilon_t
+    \mathbf{x}_t=\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \epsilon_t,
 \end{equation}
-
 其中 $\boldsymbol{\epsilon}_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 是标准高斯噪声。
 通过这种方式，可以直接在某个时间步采样生成 $\mathbf{x}_t$，避免逐步迭代计算中间结果时带来的高昂计算成本。
 
@@ -61,55 +58,47 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 基于正向过程的目标形式，反向过程定义为一个从标准正态分布 $p\left(\mathbf{x}_T\right) \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 开始的马尔可夫链，通过逐步去噪生成目标图像 $\mathbf{x}_0$，其联合分布可以定义为：
 \begin{equation}
 \label{eq:p_total}
-    p_\theta\left(\mathbf{x}_{0: T}\right) =p\left(\mathbf{x}_T\right) \prod_{t=1}^T p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right)
+    p_\theta\left(\mathbf{x}_{0: T}\right) =p\left(\mathbf{x}_T\right) \prod_{t=1}^T p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right),
 \end{equation}
-
 其中每一步的条件分布 $p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t)$ 是一个正态分布：
 \begin{equation}
 \label{eq:p}
-    p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right) =\mathcal{N}\left(\mathbf{x}_{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right), \Sigma_\theta\left(\mathbf{x}_t, t\right)\right) 
+    p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right) =\mathcal{N}\left(\mathbf{x}_{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right), \Sigma_\theta\left(\mathbf{x}_t, t\right)\right) ,
 \end{equation}
-
 其中 $\mu_\theta\left(\mathbf{x}_t, t\right)$ 和 $\Sigma_\theta\left(\mathbf{x}_t, t\right)$ 表示采样步为$t$ 时，由噪声估计网络预测的图像均值和方差，$\theta$ 表示噪声估计网络的参数。
 结合前向过程以及贝叶斯公式可知给定输入 $\mathbf{x}_0$，在采样时间步$t-1$下的噪声状态 $\mathbf{x}_{t-1}$ 和采样时间步$t$的状态 $\mathbf{x}_t$ 的真实条件分布为：
 \begin{equation}
     \label{eq:real_q}
-    q\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_{t-1} ; \tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right), \tilde{\beta}_t \mathbf{I}\right) 
+    q\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_{t-1} ; \tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right), \tilde{\beta}_t \mathbf{I}\right) ,
 \end{equation}
-
 其中公式中的均值 $\tilde{\boldsymbol{\mu}}_t(\mathbf{x}_t, \mathbf{x}_0)$ 表示在时间 $t$ 的输入 $\mathbf{x}_t$ 和初始状态 $\mathbf{x}_0$ 的条件下，$t-1$ 时刻图像的均值；而 $\tilde{\beta}_t$ 则控制了该分布的扩散程度。
 分布参数可以表示为：
 \begin{equation}
-    \quad\tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right)=\frac{\sqrt{\bar{\alpha}_{t-1}} \beta_t}{1-\bar{\alpha}_t} \mathbf{x}_0+\frac{\sqrt{\alpha_t}\left(1-\bar{\alpha}_{t-1}\right)}{1-\bar{\alpha}_t} \mathbf{x}_t
+    \quad\tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right)=\frac{\sqrt{\bar{\alpha}_{t-1}} \beta_t}{1-\bar{\alpha}_t} \mathbf{x}_0+\frac{\sqrt{\alpha_t}\left(1-\bar{\alpha}_{t-1}\right)}{1-\bar{\alpha}_t} \mathbf{x}_t,
 \end{equation}
-
-
-结合 \eqref{eq:x0_xt} 可得：
-\begin{equation}
-\begin{split}
- \tilde{\boldsymbol{\mu}}_t &=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_t\right), \\
-    \quad \tilde{\beta}_t &=\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t} \beta_t
-\end{split}
-\end{equation}
+结合公式 \eqref{eq:x0_xt} 可得：
+\begin{align}
+    \tilde{\boldsymbol{\mu}}_t &=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_t\right),\\
+    \quad \tilde{\beta}_t &=\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t} \beta_t.
+\end{align}
 
 在反向去噪过程中，噪声估计网络得到的采样时间步 $t$ 的结果$\boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)$ 来估计真实噪声 $\boldsymbol{\epsilon}_t$，
 因此在公式 \eqref{eq:p} 中，在时间步 $t$ 下样本分布均值 $\mu_\theta\left(\mathbf{x}_t, t\right)$ 为：
 \begin{equation}
-    \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right)=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right)
+    \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right)=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right).
 \end{equation}
 
-网络训练的主要优化目标是使估计的噪声分布接近真实噪声分布，期望损失 $\mathbb{E}$ 表示如下：
+网络训练的主要优化目标是使估计的噪声分布接近真实噪声分布，优化目标 $\mathbb{E}$ 表示如下：
 \begin{equation}
 \begin{split}
-    \mathbb{E}_{\mathbf{x}_0, t, \epsilon_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})}\left[\left\|\boldsymbol{\epsilon}_t -\boldsymbol{\epsilon}_\theta\left(\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \epsilon_t, t\right)\right\|^2\right]
+    \mathbb{E}_{\mathbf{x}_0, t, \epsilon_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})}\left[\left\|\boldsymbol{\epsilon}_t -\boldsymbol{\epsilon}_\theta\left(\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \epsilon_t, t\right)\right\|^2\right].
 \end{split}
 \end{equation}
 
 反向扩散过程通过以下递推公式生成时间步 $t-1$ 的状态$\mathbf{x}_{t-1}$：
 \begin{equation}
-    \mathbf{x}_{t-1}=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right)+\tilde{\beta}_t \boldsymbol{z}
+    \mathbf{x}_{t-1}=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right)+\tilde{\beta}_t \boldsymbol{z},
 \end{equation}
-
 其中 $\boldsymbol{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$是一个随机噪声项，模型旨在消除噪声并重构干净的图像。
 这一公式表明，每一步都基于当前状态 $\mathbf{x}_t$ 和估计的噪声分布生成下一个采样时间步结果 $\mathbf{x}_{t-1}$，逐步减少噪声水平，最后生成接近训练数据分布的图像。
 
@@ -120,31 +109,28 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 
 去噪扩散隐式模型引入了一种广义的非马尔可夫正向过程，该过程通过实数向量 $\sigma$ （即每个时间步的标准差 $\sigma_t$）进行索引，定义了如下的前向过程联合分布：
 \begin{equation}
-    q_\sigma\left(\mathbf{x}_{1: T} \mid \mathbf{x}_0\right)=q_\sigma\left(\mathbf{x}_T \mid \mathbf{x}_0\right) \prod_{t=2}^T q_\sigma\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)
+    q_\sigma\left(\mathbf{x}_{1: T} \mid \mathbf{x}_0\right)=q_\sigma\left(\mathbf{x}_T \mid \mathbf{x}_0\right) \prod_{t=2}^T q_\sigma\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right),
 \end{equation}
-
 其中，$q_\sigma\left(\boldsymbol{x}_T \mid \boldsymbol{x}_0\right)=\mathcal{N}\left(\sqrt{\alpha_T} \boldsymbol{x}_0,\left(1-\alpha_T\right) \boldsymbol{I}\right)$是一个正态分布， 公式 \eqref{eq:real_q} 从而重新表示为：
 \begin{equation}
-    q_\sigma\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_{t-1} ; \tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right), \sigma_t^2 \mathbf{I}\right)
+    q_\sigma\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_{t-1} ; \tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right), \sigma_t^2 \mathbf{I}\right).
 \end{equation}
 
 同样地，结合公式 \eqref{eq:x0_xt} 可得：
 \begin{equation}
-    \tilde{\boldsymbol{\mu}}_t=\sqrt{\bar{\alpha}_{t-1}} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_{t-1}-\sigma_t^2} \cdot \boldsymbol{\epsilon}_t
+    \tilde{\boldsymbol{\mu}}_t=\sqrt{\bar{\alpha}_{t-1}} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_{t-1}-\sigma_t^2} \cdot \boldsymbol{\epsilon}_t.
 \end{equation}
 
 一个重要前提是当 $\sigma_t=0$ 时，正向过程变为确定性过程 \cite{ddim}，从而可以推导出每个时间步下的状态 $\mathbf{x}_{t-1}$ 形式：
-\begin{equation}
-\begin{split}
-     \mathbf{x}_{t-1} =& \sqrt{\bar{\alpha}_{t-1}}\left(\frac{\mathbf{x}_t-\sqrt{1-\bar{\alpha}_t} \cdot \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)}{\sqrt{\bar{\alpha}_t}}\right) \\
-     + &\sqrt{1-\bar{\alpha}_{t-1}} \cdot \epsilon_\theta\left(\mathbf{x}_t, t\right)
-\end{split}
-\end{equation}
+\begin{align}
+     \mathbf{x}_{t-1} =& \sqrt{\bar{\alpha}_{t-1}}\left(\frac{\mathbf{x}_t-\sqrt{1-\bar{\alpha}_t} \cdot \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)}{\sqrt{\bar{\alpha}_t}}\right) \notag \\
+     &+ \sqrt{1-\bar{\alpha}_{t-1}} \cdot \epsilon_\theta\left(\mathbf{x}_t, t\right).
+\end{align}
 
 在上述采样策略的基础上，去噪扩散隐式模型可以以子序列采样的方式加速推理过程，
 即在反向采样过程中使用长度为 $S$ 的子序列 $\{\tau_1, \tau_2, \tau_3, ..., \tau_S\}$ 来代替完整的采样时间步数 $\{1,2,3..., T\}$，子序列与原有时间步之间的映射关系为：
 \begin{equation}
-    \tau_j=(j-1) \cdot T / S+1  \quad\quad j=1,2,...,S 
+    \tau_j=(j-1) \cdot T / S+1,  \quad\quad j=1,2,...,S .
 \end{equation}
 
 通过减少采样步数，去噪扩散隐式模型能够以较少的网络调用次数实现快速采样，同时保持与原始去噪扩散模型相当的生成质量。
@@ -168,18 +154,16 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 高斯分布定义为：
 \begin{equation}
 \label{formula:gaussian's formula}
-    G(X)=e^{-\frac{1}{2}\mathcal{X}^T\Sigma^{-1}\mathcal{X}}
+    G(X)=e^{-\frac{1}{2}\mathcal{X}^T\Sigma^{-1}\mathcal{X}},
 \end{equation}
-
 其中，$\Sigma$ 在外观上决定了3D高斯的形状和方向，$\mathcal{X}$ 决定了3D高斯中心在空间中的坐标位置。
 
 为了确保在优化过程中协方差矩阵 $\Sigma$ 维持半正定性质，协方差矩阵 $\Sigma$ 被分解为以下形式：
 \begin{equation}
 \label{formula:covariance decomposition}
-    \Sigma = \mathbf{R}\mathbf{S}\mathbf{S}^T\mathbf{R}^T
+    \Sigma = \mathbf{R}\mathbf{S}\mathbf{S}^T\mathbf{R}^T,
 \end{equation}
-
-其中 $\mathbf{S}$ 为尺度因子，定义了3D高斯在各个方向上的伸缩程度；$\mathbf{R}$ 为旋转因子，描述了3D高斯在空间中的方向性。
+其中 $\mathbf{S}$ 为尺度矩阵，定义了3D高斯在各个方向上的伸缩程度；$\mathbf{R}$ 为旋转矩阵，描述了3D高斯在空间中的方向性。
 
 此外，为了实现逼真的光照效果，3D 高斯的颜色和不透明度通过球谐函数系数定义，
 球谐函数提供了一种高效表达环境光照的方式。
@@ -187,8 +171,8 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 综上所述，每个 3D 高斯具有以下属性：
 中心位置 $\mathcal{X} \in \mathbb{R}^3$，
 透明度 $\alpha \in \mathbb{R}$，
-旋转因子 $\mathbf{R} \in \mathbb{R}^4$，
-尺度因子 $\mathbf{S} \in \mathbb{R}^3$，
+表示旋转矩阵 $\mathbf{R}$的四元数 $r \in \mathbb{R}^4$，
+表示尺度矩阵 $\mathbf{S}$的尺度因子$ s \in \mathbb{R}^3$，
 以及由球谐函数系数定义的颜色 $\mathcal{C} \in \mathbb{R}^k$。
 
 在渲染新视角的图像时，3D 高斯通过微分散射\cite{differential_splatting}投影到摄像机平面。
@@ -201,9 +185,8 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 对于生成的图像，每个像素的最终颜色由覆盖该像素的 $N$ 个3D高斯的颜色和透明度混合计算得到：
 \begin{equation}
 \label{formula: splatting&volume rendering}
-    C = \sum_{i\in N}c_i \alpha_i \prod_{j=1}^{i-1} (1-\alpha_i).
+    C = \sum_{i\in N}c_i \alpha_i \prod_{j=1}^{i-1} (1-\alpha_i),
 \end{equation}
-
 其中 $c_i$ 和 $\alpha_i$ 分别是第 $i$ 个3D高斯的颜色和透明度。
 
 另外，3D 高斯泼溅同时提出了一种自适应优化方法用于控制单位体积内的3D高斯数量和高斯密度，从而以正确的参数更好地表现场景。
@@ -251,9 +234,8 @@ q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)=\mathcal{N}\left(\mathbf{x}_t ; \sq
 Kolmogorov-Arnold 表示定理指出，对于任意定义在n维闭区间上的多元连续函数$f(x_1, \ldots, x_n)$，都可以表示为多个单变量连续函数的嵌套叠加：
 \begin{equation}
     \label{formula:kan}
-f(x_1, \ldots, x_n)=\sum_{q=1}^{2 n+1} \Phi_q(\sum_{p=1}^n \phi_{q, p}(x_p))
+f(x_1, \ldots, x_n)=\sum_{q=1}^{2 n+1} \Phi_q(\sum_{p=1}^n \phi_{q, p}(x_p)),
 \end{equation}
-
 其中 $\phi_{q, p}$ 是关于每个输入变量 $x_p$ 的单变量函数，$\Phi_q$ 是嵌套函数。
 基于这一分解，KAN 的网络结构可以对这些单变量函数和嵌套函数进行参数化学习。
 
@@ -262,9 +244,8 @@ B 样条曲线具备局部可控性和灵活的函数拟合能力，可以对复
 通过学习样条基函数的权重系数，KAN 可以有效地拟合复杂的单变量函数形式，同时避免过拟合的风险。
 根据公式 \eqref{formula:kan}，可以将单层 KAN 简化为：
 \begin{equation}
-    \Phi = {\phi_{q,p}}
+    \Phi = {\phi_{q,p}},
 \end{equation}
-
 其中 $\phi_{q,p}$ 作为这一层的内部函数，而 $\Phi$ 作为这一层的外部函数。
 内部函数的输入输出维度定义为 $n_{in}=n, n_{out}=2n+1$，其目的是对输入数据进行扩展映射以满足 Kolmogorov-Arnold 表示定理对函数分解的要求；
 而外部函数则负责对扩展后的特征进行聚合，输入输出维度定义为 $n_{in}=2n+1, n_{out}=1$。这种分解方式使得每一层能够模拟复杂的嵌套连续函数。
@@ -272,7 +253,7 @@ B 样条曲线具备局部可控性和灵活的函数拟合能力，可以对复
 KAN 的网络拓扑结构可以表示为 $[n_0, n_1, …, n_L]$，其中 $n_l$ 是第 $l$ 层计算图的节点数。
 第 $l$ 层的单变量函数用激活函数 $\phi_{l,j,i}$ 描述，表示该函数连接第 $l$ 层的第 $i$ 个神经元 $(l,i)$ 和第 $l+1$ 层的第 $j$ 个神经元 $(l+1,j)$：
 \begin{equation}
-    \phi_{l, j, i}, \quad l=0, \cdots, L-1, \quad i=1, \cdots, n_l, \quad j=1, \cdots, n_{l+1}
+    \phi_{l, j, i}, \quad l=0, \cdots, L-1, \quad i=1, \cdots, n_l, \quad j=1, \cdots, n_{l+1}.
 \end{equation}
 
 在每一层的计算中，令 $x_{l,i}$ 表示第 $l$ 层第 $i$ 个神经元的预激活值，
@@ -283,17 +264,17 @@ KAN 的网络拓扑结构可以表示为 $[n_0, n_1, …, n_L]$，其中 $n_l$ �
 
 接下来，第 $l+1$ 层的第 $j$ 个神经元的值 $x_{l+1,j}$ 可由下式计算：
 \begin{equation}
-    x_{l+1, j}=\sum_{i=1}^{n_l} \tilde{x}_{l, j, i}=\sum_{i=1}^{n_l} \phi_{l, j, i}\left(x_{l, i}\right), \quad j=1, \cdots, n_{l+1}
+    x_{l+1, j}=\sum_{i=1}^{n_l} \tilde{x}_{l, j, i}=\sum_{i=1}^{n_l} \phi_{l, j, i}\left(x_{l, i}\right), \quad j=1, \cdots, n_{l+1}.
 \end{equation}
 
 这一过程可以通过矩阵形式更直观地表示为：
 \begin{equation}
-    \mathbf{x}_{l+1}=\underbrace{\left(\begin{array}{cccc}\phi_{l, 1,1}(\cdot) & \phi_{l, 1,2}(\cdot) & \cdots & \phi_{l, 1, n_l}(\cdot) \\ \phi_{l, 2,1}(\cdot) & \phi_{l, 2,2}(\cdot) & \cdots & \phi_{l, 2, n_l}(\cdot) \\ \vdots & \vdots & & \vdots \\ \phi_{l, n_{l+1}, 1}(\cdot) & \phi_{l, n_{l+1}, 2}(\cdot) & \cdots & \phi_{l, n_{l+1}, n_l}(\cdot)\end{array}\right)}_{\boldsymbol{\Phi}_l} \mathbf{x}_l
+    \mathbf{x}_{l+1}=\underbrace{\left(\begin{array}{cccc}\phi_{l, 1,1}(\cdot) & \phi_{l, 1,2}(\cdot) & \cdots & \phi_{l, 1, n_l}(\cdot) \\ \phi_{l, 2,1}(\cdot) & \phi_{l, 2,2}(\cdot) & \cdots & \phi_{l, 2, n_l}(\cdot) \\ \vdots & \vdots & & \vdots \\ \phi_{l, n_{l+1}, 1}(\cdot) & \phi_{l, n_{l+1}, 2}(\cdot) & \cdots & \phi_{l, n_{l+1}, n_l}(\cdot)\end{array}\right)}_{\boldsymbol{\Phi}_l} \mathbf{x}_l.
 \end{equation}
 
 对于一个具有 $L$ 层的 KAN 网络，给定输入向量 $\mathbf{x}_0 \in \mathbb{R}^{n_0}$，其最终输出可表示为：
 \begin{equation}
-    \operatorname{KAN}(\mathbf{x})=\left(\boldsymbol{\Phi}_{L-1} \circ \boldsymbol{\Phi}_{L-2} \circ \cdots \circ \boldsymbol{\Phi}_1 \circ \boldsymbol{\Phi}_0\right) \mathbf{x}
+    \operatorname{KAN}(\mathbf{x})=\left(\boldsymbol{\Phi}_{L-1} \circ \boldsymbol{\Phi}_{L-2} \circ \cdots \circ \boldsymbol{\Phi}_1 \circ \boldsymbol{\Phi}_0\right) \mathbf{x}.
 \end{equation}
 
 缩放定律指的是随着模型大小的增加，模型性能如何变化的规律。
