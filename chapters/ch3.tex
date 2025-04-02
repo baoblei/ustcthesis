@@ -222,7 +222,7 @@ $\mathbf{x}^{(i)} \gets \text{Crop}(\bm{P}_i \circ \bm{X})$\;
         $\bm{\hat{\epsilon}}_t \leftarrow \bm{\hat{\epsilon}}_t + \mathbf{P}_i \cdot \bm{\epsilon}_{\theta}(\mathbf{x}_t^{(i)}, \tilde{\mathbf{x}}^{(i)}, t)$\;
         $\mathbf{M} \leftarrow \mathbf{M} + \mathbf{P}_i$\;
       }
-      $\bm{\hat{\epsilon}}_t \leftarrow \bm{\hat{\epsilon}}_t \oslash \mathbf{M}$  \tcp* {$\oslash$: 元素级除法}
+      $\bm{\hat{\epsilon}}_t \leftarrow \bm{\hat{\epsilon}}_t \oslash \mathbf{M}$  \tcp* {$\oslash$: 逐元素除法}
       $X_{t} \leftarrow \sqrt{\bar{\alpha}_{t_{\text{next}}}} \left(\frac{X_t - \sqrt{1 - \bar{\alpha}_t} \cdot \bm{\hat{\epsilon}}_t}{\sqrt{\bar{\alpha}_t}}\right) + \sqrt{1 - \bar{\alpha}_{t_{\text{next}}}} \cdot \bm{\hat{\epsilon}}_t$\;
     }
     \Return $\bm{X}_t$\;
