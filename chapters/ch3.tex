@@ -175,7 +175,7 @@ $\mathbf{x}^{(i)} \gets \text{Crop}(\bm{P}_i \circ \bm{X})$\;
 
 \begin{algorithm}
     \SetAlgoLined
-    \KwIn{干净图像 $\bm{X}_0$ ，退化图像 $\bm{\tilde{X}}$，记录补丁位置的掩码 $\bm{P}$}
+    \KwIn{参考图像 $\bm{X}_0$ ，退化图像 $\bm{\tilde{X}}$，记录补丁位置的掩码 $\bm{P}$}
     \KwOut{训练后的模型参数 $\theta$}
   
     $n \leftarrow P.\text{length}$\;
@@ -750,6 +750,7 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
 进一步增加 $S$（如 $S=20$）时，生成质量提升趋于稳定，说明适当的采样步数已足够实现高质量图像生成。
 \begin{figure}[ht]
     \begin{center}
+    \vspace{4mm}
         \begin{tabular}{ccccccc}
             \multicolumn{1}{c}{(a)} & \hspace{-0.46cm}
             \includegraphics[width=0.15\linewidth]{figures/ch3/compare/discussion/input/im_f545_.jpg} & \hspace{-0.46cm}
@@ -775,11 +776,11 @@ EUVP数据集与UIEB数据集在综合水下图像质量指标UIQM上分别提�
     \end{center}
     \vspace{-6mm}
     \caption{\label{img:stride-S} 不同步长$stride$ 和 采样步数$S$ 的结果}
-    \vspace{-4mm}
 \end{figure}
 
 为了进一步验证步长与采样步数的均衡关系，以及检查模型在新样本下的泛化能力，
-本章利用预训练模型在 RUIE \cite{RUIE} 数据集上进行了参数交叉的对比实验。
+本章利用预训练模型在 RUIE \cite{RUIE} 数据集上进行了参数交叉的对比实验，RUIE是一个大规模的真实世界水下图像增强数据集，
+与之前实验中用到的数据集不同的是RUIE的所有水下图像仅提供了从水下环境中采集的原始图像，而没有对应的参考图像。
 如图 \ref{img:param} 所示，即便采样步数 $S$ 较小或滑动窗口步长$stride$较大，在某些组合下依然能获得良好的增强效果，
 这说明$S$和$stride$在一定程度上具有互补性，比如较小的步长使得更多的重叠区域参与信息交互，使得能够在较少的采样步数下获得令人满意的结果。
 \begin{figure}
