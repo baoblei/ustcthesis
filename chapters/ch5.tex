@@ -152,7 +152,8 @@
 
 系统首先需要采集目标水下场景的多视角图像数据为三维重建做准备，为了确保采集的全面性和灵活性，可以利用AUV或ROV围绕目标区域进行多视角的视频拍摄。
 对于采集到的视频数据，采用抽帧方法获取带有时序信息连续的图像序列，然而，受制于水下环境的特性（如光散射、颜色失真、低对比度等），原始水下图像通常存在模糊、色偏和细节丢失问题，这为后续的特征点匹配和点云生成带来了显著挑战。
-为解决这些问题，系统集成了第三章介绍的基于去噪扩散模型的水下图像增强算法。该算法能够有效修复水下图像视觉特征，生成语义信息丰富且高感知质量的水下图像，为后续的三维重建提供了更为可靠的数据基础。
+为解决这些问题，系统集成了第三章介绍的基于去噪扩散模型的水下图像增强算法。该算法能够有效修复水下图像视觉特征，生成语义信息丰富且高感知质量的水下图像，
+采用先增强后重建的方式使得系统后期的功能扩展更加灵活，为其他可能的下游任务如目标检测、分割等提供数据基础。
 
 然后，系统将利用SfM框架流程进一步处理图像数据，完成初步的点云生成与相机位姿估计。
 SfM 技术的核心优势在于，即便在无相机内部参数的情况下，也能通过 2D 图像之间的特征点匹配，推断出相机的位姿以及场景的初步三维点云数据。
@@ -253,98 +254,98 @@ RoboChatGest\cite{robochatgest}是一种专门为潜水员和水下机器人进�
 开始/突出预览 & 
 - &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d9.jpg}} & 
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d9.jpg}} & 
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd9.jpg}} & 
 \{ok, ok\} \\ 
 \hline
 
 停止 & 
 - &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d0.jpg}} & 
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d0.jpg}} & 
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd0.jpg}} & 
 \{0, 0\} \\ 
 \hline
 
 向前移动（Z轴正方向） &
 W &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d5.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d1.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd1.jpg}} &
 \{5, 1\} \\
 \hline
 
 向后移动（Z轴负方向） &
 S &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d5.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d2.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd2.jpg}} &
 \{5, 2\} \\
 \hline
 
 向左移动（X轴负方向） & 
 A &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d5.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d6.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd6.jpg}} &
 \{5, left\} \\
 \hline
 
 向右移动（X轴正方向） &
 D &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d5.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d7.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd7.jpg}} &
 \{5, right\} \\
 \hline
 
 向上移动（Y轴正方向） &
 Q &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d5.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d3.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd3.jpg}} &
 \{5, 3\} \\
 \hline
 
 向下移动（Y轴负方向） &
 E &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d5.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d4.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd4.jpg}} &
 \{5, 4\} \\
 \hline
 
 顺时针旋转（Z轴） &
 O &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d8.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d1.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd1.jpg}} &
 \{pic, 1\} \\
 \hline
 
 逆时针旋转（Z轴） &
 U &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d8.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d2.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd2.jpg}} &
 \{pic, 2\} \\
 \hline
 
 向上旋转（X轴） &
 I &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d8.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d6.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd6.jpg}} &
 \{pic, left\} \\
 \hline
 
 向下旋转（X轴） &
 K &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d8.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d7.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd7.jpg}} &
 \{pic, right\} \\
 \hline
 
 向左旋转（Y轴） &
 J &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d8.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d3.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd3.jpg}} &
 \{pic, 3\} \\
 \hline
 
 向右旋转（Y轴） &
 L &
 \adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d8.jpg}} &
-\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/d4.jpg}} &
+\adjustbox{valign=c}{\includegraphics[width=0.07\linewidth]{figures/ch5/res/rd4.jpg}} &
 \{pic, 4\} \\
 \hline
 
@@ -357,10 +358,11 @@ L &
 
 
 \subsection{AR界面设计}
-增强现实（Augmented Reality, AR）技术借鉴了人眼的视觉成像机制，通过分别呈现包含视差信息的二维图像为用户提供逼真的三维视觉体验。
+虚拟现实技术（Virtual Reality, VR）技术借鉴了人眼的视觉成像机制，通过分别呈现包含视差信息的二维图像为用户提供逼真的三维视觉体验。
 这种视差信息模拟了人类双眼观看世界时产生的自然差异，大脑将这些信息整合，从而形成带有深度感的三维立体影像。
-本系统通过安装在头显中的两个RGB主摄像头模拟潜水员的双眼所看到的图像，在单块OLED屏幕上共同显示左右主摄像头所拍摄的图像，
-从而将当前用户面前的场景逼真地反馈给用户。
+本系统通过安装在头显中的两个RGB主摄像头模拟潜水员的双眼，
+并在单块OLED屏幕上共同显示左右主摄像头所拍摄的图像以及辅助场景信息，
+从而实现增强现实（Augmented Reality, AR）的效果。
 
 另外，常见的 AR 设备中会在屏幕与用户眼睛之间设置可以灵活调节位置的凸透镜，头显中的画面可以通过凸透镜改变其在人眼中的成像距离。
 同时，凸透镜也影响着视场角（Field of View, FOV）的大小，视场角越大，用户的视野范围越大，可以提供更加沉浸的视觉感受。
