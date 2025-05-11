@@ -22,15 +22,15 @@ LaTeX Font Info:    Font shape `TU/STIXTwoMath-Regular(0)/m/n' will be
 (Font)              scaled to size 6.87555pt on input line ....
 Completed box being shipped out [1]
 \vbox(722.98453+0.0)x435.04271
-.\glue -16.36447
-.\vbox(739.349+0.0)x417.11752, shifted 17.92519
-..\vbox(15.36429+0.0)x417.11752, glue set 15.36429fil
+.\glue -29.59128
+.\vbox(752.5758+0.0)x417.11752, shifted 17.92519
+..\vbox(13.942+0.0)x417.11752, glue set 13.942fil
 ...\glue 0.0 plus 1.0fil
 ...\hbox(0.0+0.0)x417.11752
 ....\special{color push  Black}
 ....\hbox(0.0+0.0)x417.11752
 ....\special{color pop}
-..\glue 1.0
+..\glue 15.6491
 ..\glue(\lineskip) 0.0
 ..\vbox(700.50723+0.0)x417.11752, glue set 379.31187fil
 ...\write-{}
@@ -599,15 +599,15 @@ Package fontspec Info:
 )
 Completed box being shipped out [2]
 \vbox(722.98453+0.0)x435.04271
-.\glue -16.36447
-.\vbox(739.349+0.0)x417.11752, shifted 17.92519
-..\vbox(15.36429+0.0)x417.11752, glue set 15.36429fil
+.\glue -29.59128
+.\vbox(752.5758+0.0)x417.11752, shifted 17.92519
+..\vbox(13.942+0.0)x417.11752, glue set 13.942fil
 ...\glue 0.0 plus 1.0fil
 ...\hbox(0.0+0.0)x417.11752
 ....\special{color push  Black}
 ....\hbox(0.0+0.0)x417.11752
 ....\special{color pop}
-..\glue 1.0
+..\glue 15.6491
 ..\glue(\lineskip) 0.0
 ..\vbox(700.50723+0.0)x417.11752, glue set 496.738fil
 ...\write-{}
@@ -919,7 +919,7 @@ Completed box being shipped out [2]
 ....\glue(\rightskip) 0.0
 ...\penalty 4150
 ...\glue(\baselineskip) 11.22995
-...\hbox(8.23878+2.6258)x397.07306, glue set 42.8498fil, shifted 20.04446
+...\hbox(8.23878+2.6258)x397.07306, glue set 43.24727fil, shifted 20.04446
 ....\TU/texgyretermes(0)/m/n/12.045 of
 ....\glue 3.01125 plus 1.50562 minus 1.00374
 ....\TU/texgyretermes(0)/m/n/12.045 argon-hydrogen
@@ -931,14 +931,11 @@ Completed box being shipped out [2]
 ....\TU/texgyretermes(0)/m/n/12.045 [J].
 ....\glue 3.01125 plus 1.50562 minus 1.00374
 ....\glue 1.32495 plus 3.97487 minus 0.84323
-....\TU/texgyretermes(0)/m/it/12.045 J.
+....\TU/texgyretermes(0)/m/n/12.045 J.
 ....\glue 3.01125 plus 1.50562 minus 1.00374
-....\TU/texgyretermes(0)/m/it/12.045 Phys.
+....\TU/texgyretermes(0)/m/n/12.045 Phys.
 ....\glue 3.01125 plus 1.50562 minus 1.00374
-....\TU/texgyretermes(0)/m/it/12.045 Chem.
-....\kern -0.0002
-....\kern 0.0002
-....\TU/texgyretermes(0)/m/n/12.045 ,
+....\TU/texgyretermes(0)/m/n/12.045 Chem.,
 ....\glue 3.01125 plus 1.88202 minus 0.80298
 ....\TU/texgyretermes(0)/m/n/12.045 1992,
 ....\glue 3.01125 plus 1.88202 minus 0.80298
